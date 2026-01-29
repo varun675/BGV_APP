@@ -1319,8 +1319,8 @@ function App() {
                     </div>
                   </div>
                   
-                  {/* Download Button */}
-                  <div className="flex justify-center pt-4">
+                  {/* Generate Preview Button */}
+                  <div className="flex flex-col items-center gap-4 pt-4">
                     <Button
                       size="lg"
                       data-testid="download-pdf-btn"
@@ -1335,11 +1335,32 @@ function App() {
                         </>
                       ) : (
                         <>
-                          <Download className="w-5 h-5 mr-2" />
-                          Download BGV Report (PDF)
+                          <Eye className="w-5 h-5 mr-2" />
+                          Generate & Preview PDF
                         </>
                       )}
                     </Button>
+                    
+                    {pdfPreview && (
+                      <div className="flex gap-3">
+                        <Button
+                          variant="outline"
+                          onClick={() => setShowPreview(true)}
+                          data-testid="view-preview-btn"
+                        >
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Preview Again
+                        </Button>
+                        <Button
+                          onClick={handleDownloadPDF}
+                          className="bg-green-600 hover:bg-green-700"
+                          data-testid="direct-download-btn"
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          Download PDF
+                        </Button>
+                      </div>
+                    )}
                   </div>
                   
                   {!formData.candidateName && (
