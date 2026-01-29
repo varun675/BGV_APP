@@ -739,6 +739,43 @@ function App() {
                     />
                   </div>
                   
+                  {/* GPS Coordinates Section */}
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <MapPinned className="w-5 h-5 text-blue-600" />
+                      <span className="font-medium text-blue-800">GPS Coordinates (for image watermark)</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <Label>Latitude</Label>
+                        <Input
+                          data-testid="input-latitude"
+                          placeholder="e.g., 28.6280"
+                          value={formData.address.latitude}
+                          onChange={(e) => updateNestedFormData('address', 'latitude', e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <Label>Longitude</Label>
+                        <Input
+                          data-testid="input-longitude"
+                          placeholder="e.g., 77.2789"
+                          value={formData.address.longitude}
+                          onChange={(e) => updateNestedFormData('address', 'longitude', e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <Label>Pincode</Label>
+                        <Input
+                          data-testid="input-pincode"
+                          placeholder="e.g., 110091"
+                          value={formData.address.pincode}
+                          onChange={(e) => updateNestedFormData('address', 'pincode', e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
                   <div className="form-grid">
                     <div>
                       <Label>Verified By</Label>
