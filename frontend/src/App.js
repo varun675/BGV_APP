@@ -57,6 +57,91 @@ function App() {
     }));
   };
 
+  // Handle education document upload with stamp
+  const handleEducationDocUpload = async (file) => {
+    updateNestedFormData('education', 'document', file);
+    
+    if (file && file.type?.startsWith('image/')) {
+      try {
+        toast.info("Adding verification stamp...");
+        const stampedImage = await addVerificationStamp(
+          file.data, 
+          formData.education.status,
+          {
+            universityName: formData.education.universityName,
+            verifiedBy: formData.education.verifiedBy,
+            date: formatDate(new Date())
+          }
+        );
+        updateNestedFormData('education', 'stampedDocument', {
+          ...file,
+          data: stampedImage,
+          name: `stamped_${file.name}`
+        });
+        toast.success("Verification stamp added!");
+      } catch (error) {
+        console.error("Failed to add stamp:", error);
+      }
+    }
+  };
+
+  // Handle employment document upload with stamp
+  const handleEmploymentDocUpload = async (file) => {
+    updateNestedFormData('employment', 'document', file);
+    
+    if (file && file.type?.startsWith('image/')) {
+      try {
+        toast.info("Adding verification stamp...");
+        const stampedImage = await addEmploymentStamp(
+          file.data, 
+          formData.employment.status,
+          {
+            companyName: formData.employment.companyName,
+            verifiedBy: formData.employment.verifiedBy,
+            date: formatDate(new Date())
+          }
+        );
+        updateNestedFormData('employment', 'stampedDocument', {
+          ...file,
+          data: stampedImage,
+          name: `stamped_${file.name}`
+        });
+        toast.success("Verification stamp added!");
+      } catch (error) {
+        console.error("Failed to add stamp:", error);
+      }
+    }
+  };
+
+  // Handle address document upload with GPS watermark
+  const handleAddressDocUpload = async (file) => {
+    updateNestedFormData('address', 'document', file);
+    
+    if (file && file.type?.startsWith('image/')) {
+      try {
+        toast.info("Adding GPS watermark...");
+        const watermarkedImage = await addGPSWatermark(
+          file.data,
+          {
+            latitude: formData.address.latitude,
+            longitude: formData.address.longitude,
+            pincode: formData.address.pincode,
+            address: formData.address.addressAsPerDocument || formData.candidateAddress,
+            timestamp: new Date().toLocaleString()
+          }
+        );
+        updateNestedFormData('address', 'watermarkedDocument', {
+          ...file,
+          data: watermarkedImage,
+          name: `gps_${file.name}`
+        });
+        toast.success("GPS watermark added!");
+      } catch (error) {
+        console.error("Failed to add GPS watermark:", error);
+      }
+    }
+  };
+
   const handleNext = () => {
     if (currentStep < 5) {
       setCurrentStep(prev => prev + 1);
