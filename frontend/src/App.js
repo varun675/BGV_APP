@@ -690,12 +690,24 @@ function App() {
                   </div>
                   
                   <FileUpload
-                    label="Employment Document (Offer Letter/Relieving Letter)"
+                    label="Employment Document (Offer Letter/Relieving Letter) - Will be stamped"
                     accept="image/*,.pdf"
                     value={formData.employment.document}
-                    onChange={(file) => updateNestedFormData('employment', 'document', file)}
-                    helpText="Upload employment proof document"
+                    onChange={handleEmploymentDocUpload}
+                    helpText="Upload employment proof document (Image files will get verification stamp)"
                   />
+                  
+                  {formData.employment.stampedDocument && (
+                    <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                      <p className="text-sm font-medium text-green-800 mb-2">✓ Stamped Document Preview:</p>
+                      <img 
+                        src={formData.employment.stampedDocument.data} 
+                        alt="Stamped document" 
+                        className="max-w-full h-auto rounded border"
+                        style={{ maxHeight: '300px' }}
+                      />
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
