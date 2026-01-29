@@ -165,7 +165,7 @@ function App() {
     }
     
     setIsGenerating(true);
-    toast.info("Generating PDF report... Please wait");
+    toast.info("Generating PDF report...");
     
     try {
       // Generate PDF using the dedicated generator
@@ -176,18 +176,11 @@ function App() {
       const dateStr = `${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}`;
       const fileName = `BGV_Report_${formData.candidateName.replace(/\s+/g, '_')}_${dateStr}.pdf`;
       
-      // Generate PDF blob and data URL for preview
-      const blob = doc.output('blob');
-      const dataUrl = doc.output('dataurlstring');
-      
-      // Store for preview and download
-      setPdfBlob({ blob, fileName });
-      setPdfPreview(dataUrl);
+      // Store doc for later download
+      setPdfBlob({ doc, fileName });
       setShowPreview(true);
       
-      toast.success("PDF generated! Preview ready.");
-      console.log("PDF generated successfully:", fileName);
-      
+      toast.success("PDF generated! Click download to save.");
     } catch (error) {
       console.error("PDF generation error:", error);
       toast.error(`Failed to generate PDF: ${error.message}`);
@@ -196,35 +189,20 @@ function App() {
     }
   };
 
-  // Download the generated PDF using file-saver
+  // Download the generated PDF - using jsPDF save directly
   const handleDownloadPDF = () => {
-    if (!pdfBlob) {
+    if (!pdfBlob || !pdfBlob.doc) {
       toast.error("Please generate the PDF first");
       return;
     }
     
     try {
-      saveAs(pdfBlob.blob, pdfBlob.fileName);
-      toast.success(`Downloaded: ${pdfBlob.fileName}`);
+      // Use jsPDF's native save method - most reliable
+      pdfBlob.doc.save(pdfBlob.fileName);
+      toast.success(`Downloading: ${pdfBlob.fileName}`);
     } catch (error) {
       console.error("Download error:", error);
-      // Fallback method
-      try {
-        const url = window.URL.createObjectURL(pdfBlob.blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', pdfBlob.fileName);
-        link.style.display = 'none';
-        document.body.appendChild(link);
-        link.click();
-        setTimeout(() => {
-          document.body.removeChild(link);
-          window.URL.revokeObjectURL(url);
-        }, 100);
-        toast.success(`Downloaded: ${pdfBlob.fileName}`);
-      } catch (e) {
-        toast.error("Download failed. Please try 'Open in New Tab' instead.");
-      }
+      toast.error("Download failed. Check your browser's download settings.");
     }
   };
 
