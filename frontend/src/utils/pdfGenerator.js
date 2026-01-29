@@ -267,9 +267,18 @@ export const generatePDF = async (formData) => {
   addInfoRow('Number of Family Members', formData.address.familyMembers, true);
   addInfoRow('Neighbour Name', formData.address.neighbourName);
   addInfoRow('Neighbour Contact', formData.address.neighbourContact, true);
-  addInfoRow('Remarks', formData.address.remarks);
+  
+  // Add GPS coordinates if available
+  if (formData.address.latitude || formData.address.longitude || formData.address.pincode) {
+    currentY += 5;
+    addInfoRow('GPS Latitude', formData.address.latitude);
+    addInfoRow('GPS Longitude', formData.address.longitude, true);
+    addInfoRow('Pincode', formData.address.pincode);
+  }
+  
+  addInfoRow('Remarks', formData.address.remarks, true);
 
-  // Add document images if available
+  // Add document images if available - prefer stamped/watermarked versions
   const addDocumentPage = async (title, document) => {
     if (document && document.data) {
       doc.addPage();
@@ -277,8 +286,8 @@ export const generatePDF = async (formData) => {
       addSectionTitle(title);
       
       try {
-        if (document.type.startsWith('image/')) {
-          const imgFormat = document.type.includes('png') ? 'PNG' : 'JPEG';
+        if (document.type?.startsWith('image/') || document.data?.startsWith('data:image')) {
+          const imgFormat = document.type?.includes('png') ? 'PNG' : 'JPEG';
           doc.addImage(document.data, imgFormat, margin, currentY, contentWidth, 0);
         } else {
           doc.setFontSize(10);
@@ -293,17 +302,20 @@ export const generatePDF = async (formData) => {
     }
   };
 
-  // Add annexures for documents
-  if (formData.education.document) {
-    await addDocumentPage('ANNEXURE 1 - EDUCATION DOCUMENT', formData.education.document);
+  // Add annexures for documents - use stamped/watermarked versions if available
+  const eduDoc = formData.education.stampedDocument || formData.education.document;
+  if (eduDoc) {
+    await addDocumentPage('ANNEXURE 1 - EDUCATION DOCUMENT (VERIFIED)', eduDoc);
   }
   
-  if (formData.employment.document) {
-    await addDocumentPage('ANNEXURE 2 - EMPLOYMENT DOCUMENT', formData.employment.document);
+  const empDoc = formData.employment.stampedDocument || formData.employment.document;
+  if (empDoc) {
+    await addDocumentPage('ANNEXURE 2 - EMPLOYMENT DOCUMENT (VERIFIED)', empDoc);
   }
   
-  if (formData.address.document) {
-    await addDocumentPage('ANNEXURE 3 - ADDRESS DOCUMENT', formData.address.document);
+  const addrDoc = formData.address.watermarkedDocument || formData.address.document;
+  if (addrDoc) {
+    await addDocumentPage('ANNEXURE 3 - ADDRESS VERIFICATION PHOTO (GPS TAGGED)', addrDoc);
   }
 
   // Restrictions & Limitations page
