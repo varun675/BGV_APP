@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   User, GraduationCap, Briefcase, MapPin, FileText, 
   ChevronRight, Check, Download, ArrowLeft, ArrowRight,
-  Shield, MapPinned
+  Shield, MapPinned, Eye, X, FileDown
 } from "lucide-react";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
@@ -16,7 +16,6 @@ import { Toaster, toast } from "sonner";
 import FileUpload from "./components/FileUpload";
 import { StatusSelect, StatusBadge } from "./components/StatusSelect";
 import { generateCaseNumber, calculateInitiationDate, formatDate, formatDateForInput, initialFormState } from "./utils/helpers";
-import { generatePDF } from "./utils/pdfGenerator";
 import { addGPSWatermark, addVerificationStamp, addEmploymentStamp } from "./utils/imageWatermark";
 
 const steps = [
@@ -31,6 +30,9 @@ function App() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState(initialFormState);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [pdfPreview, setPdfPreview] = useState(null);
+  const [pdfBlob, setPdfBlob] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   // Generate case number on mount
   useEffect(() => {
