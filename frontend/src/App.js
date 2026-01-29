@@ -33,7 +33,7 @@ function App() {
   const [formData, setFormData] = useState(initialFormState);
   const [isGenerating, setIsGenerating] = useState(false);
   const [pdfBlob, setPdfBlob] = useState(null);
-  const [showPreview, setShowPreview] = useState(false);
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
 
   // Generate case number on mount
   useEffect(() => {
@@ -49,6 +49,15 @@ function App() {
     }));
   }, []);
 
+  // Cleanup preview URL on unmount or when regenerating
+  useEffect(() => {
+    return () => {
+      if (pdfPreviewUrl) {
+        URL.revokeObjectURL(pdfPreviewUrl);
+      }
+    };
+  }, [pdfPreviewUrl]);
+
   const updateFormData = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -58,6 +67,14 @@ function App() {
       ...prev,
       [section]: { ...prev[section], [field]: value }
     }));
+  };
+
+  // Calculate verification date (2 days before delivery date)
+  const getVerificationDate = () => {
+    const deliveryDate = formData.deliveryDate ? new Date(formData.deliveryDate) : new Date();
+    const verificationDate = new Date(deliveryDate);
+    verificationDate.setDate(verificationDate.getDate() - 2);
+    return formatDate(verificationDate);
   };
 
   // Handle education document upload with stamp
@@ -73,7 +90,7 @@ function App() {
           {
             universityName: formData.education.universityName,
             verifiedBy: formData.education.verifiedBy,
-            date: formatDate(new Date())
+            date: getVerificationDate()
           }
         );
         updateNestedFormData('education', 'stampedDocument', {
@@ -101,7 +118,7 @@ function App() {
           {
             companyName: formData.employment.companyName,
             verifiedBy: formData.employment.verifiedBy,
-            date: formatDate(new Date())
+            date: getVerificationDate()
           }
         );
         updateNestedFormData('employment', 'stampedDocument', {
@@ -177,9 +194,13 @@ function App() {
       
       // Store doc for later download
       setPdfBlob({ doc, fileName });
-      setShowPreview(true);
       
-      toast.success("PDF generated! Click download to save.");
+      // Create preview URL
+      const blob = doc.output('blob');
+      const previewUrl = URL.createObjectURL(blob);
+      setPdfPreviewUrl(previewUrl);
+      
+      toast.success("PDF generated! Preview is ready below.");
     } catch (error) {
       console.error("PDF generation error:", error);
       toast.error(`Failed to generate PDF: ${error.message}`);
@@ -205,11 +226,6 @@ function App() {
     }
   };
 
-  // Close preview modal
-  const closePreview = () => {
-    setShowPreview(false);
-  };
-
   const pageVariants = {
     initial: { opacity: 0, x: 20 },
     animate: { opacity: 1, x: 0 },
@@ -220,92 +236,6 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <Toaster position="top-right" richColors />
       
-      {/* PDF Preview Modal */}
-      {showPreview && pdfBlob && (
-        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl w-full max-w-4xl flex flex-col shadow-2xl">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b bg-slate-50 rounded-t-xl">
-              <div className="flex items-center gap-3">
-                <FileText className="w-6 h-6 text-blue-600" />
-                <div>
-                  <h2 className="font-semibold text-slate-800">PDF Ready for Download</h2>
-                  <p className="text-sm text-slate-500">{pdfBlob?.fileName}</p>
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={closePreview}
-                data-testid="close-preview-btn"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-            
-            {/* Preview Content */}
-            <div className="p-6 space-y-6">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
-                <Check className="w-6 h-6 text-green-600" />
-                <div>
-                  <p className="font-medium text-green-800">PDF Generated Successfully!</p>
-                  <p className="text-sm text-green-600">Your BGV report is ready to download.</p>
-                </div>
-              </div>
-              
-              {/* Report Summary in Modal */}
-              <div className="bg-slate-50 rounded-lg p-4 border">
-                <h3 className="font-semibold text-slate-700 mb-3">Report Summary</h3>
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div><span className="text-slate-500">Candidate:</span> <span className="font-medium">{formData.candidateName}</span></div>
-                  <div><span className="text-slate-500">Case #:</span> <span className="font-medium">{formData.caseNumber}</span></div>
-                  <div><span className="text-slate-500">Education:</span> <StatusBadge status={formData.education.status} /></div>
-                  <div><span className="text-slate-500">Employment:</span> <StatusBadge status={formData.employment.status} /></div>
-                  <div><span className="text-slate-500">Address:</span> <StatusBadge status={formData.address.status} /></div>
-                </div>
-              </div>
-              
-              {/* Download Options */}
-              <div className="flex flex-col gap-3">
-                <Button
-                  size="lg"
-                  onClick={handleDownloadPDF}
-                  className="w-full bg-green-600 hover:bg-green-700 py-6"
-                  data-testid="modal-download-btn"
-                >
-                  <Download className="w-5 h-5 mr-2" />
-                  Download PDF to Computer
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => {
-                    if (pdfBlob && pdfBlob.doc) {
-                      const blob = pdfBlob.doc.output('blob');
-                      const blobUrl = URL.createObjectURL(blob);
-                      window.open(blobUrl, '_blank');
-                    }
-                  }}
-                  className="w-full py-6"
-                  data-testid="open-new-tab-btn"
-                >
-                  <Eye className="w-5 h-5 mr-2" />
-                  Open PDF in New Tab
-                </Button>
-              </div>
-            </div>
-            
-            {/* Modal Footer */}
-            <div className="p-4 border-t bg-slate-50 rounded-b-xl">
-              <p className="text-xs text-slate-500 text-center">
-                If download doesn't start, try "Open in New Tab" and save from there.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-      
       {/* Sidebar */}
       <aside className="sidebar">
         <div className="sidebar-header">
@@ -315,7 +245,6 @@ function App() {
             </div>
             <div>
               <h1 className="sidebar-logo">VerifEye</h1>
-              <p className="text-xs text-slate-400">BGV Report Generator</p>
             </div>
           </div>
         </div>
@@ -1187,33 +1116,49 @@ function App() {
                         </>
                       )}
                     </Button>
-                    
-                    {pdfBlob && (
-                      <div className="flex gap-3">
-                        <Button
-                          variant="outline"
-                          onClick={() => setShowPreview(true)}
-                          data-testid="view-preview-btn"
-                        >
-                          <Eye className="w-4 h-4 mr-2" />
-                          View Preview Again
-                        </Button>
-                        <Button
-                          onClick={handleDownloadPDF}
-                          className="bg-green-600 hover:bg-green-700"
-                          data-testid="direct-download-btn"
-                        >
-                          <Download className="w-4 h-4 mr-2" />
-                          Download PDF
-                        </Button>
-                      </div>
-                    )}
                   </div>
                   
                   {!formData.candidateName && (
                     <p className="text-center text-sm text-red-500">
                       Please enter candidate name to generate report
                     </p>
+                  )}
+                  
+                  {/* Embedded PDF Preview */}
+                  {pdfPreviewUrl && (
+                    <div className="mt-6 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                          <FileText className="w-5 h-5 text-blue-600" />
+                          PDF Preview
+                        </h3>
+                        <div className="flex gap-3">
+                          <Button
+                            variant="outline"
+                            onClick={() => window.open(pdfPreviewUrl, '_blank')}
+                            data-testid="open-new-tab-btn"
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            Open in New Tab
+                          </Button>
+                          <Button
+                            onClick={handleDownloadPDF}
+                            className="bg-green-600 hover:bg-green-700"
+                            data-testid="direct-download-btn"
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Download PDF
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="border rounded-lg overflow-hidden bg-gray-100">
+                        <iframe
+                          src={pdfPreviewUrl}
+                          className="w-full h-[600px]"
+                          title="PDF Preview"
+                        />
+                      </div>
+                    </div>
                   )}
                 </CardContent>
               </Card>
@@ -1223,16 +1168,19 @@ function App() {
 
         {/* Navigation Buttons */}
         <div className="flex justify-between mt-8 max-w-4xl">
-          <Button
-            variant="outline"
-            onClick={handleBack}
-            disabled={currentStep === 1}
-            data-testid="btn-back"
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back
-          </Button>
+          {currentStep > 1 ? (
+            <Button
+              variant="outline"
+              onClick={handleBack}
+              data-testid="btn-back"
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back
+            </Button>
+          ) : (
+            <div />
+          )}
           
           {currentStep < 5 && (
             <Button
