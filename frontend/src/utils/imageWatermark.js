@@ -189,7 +189,7 @@ export const addVerificationStamp = (imageData, status, verificationData = {}) =
       ctx.fillText(`EDUCATION DOCUMENT - ${stampText}`, 20, 25);
       
       ctx.font = '14px Arial';
-      const verifierText = `Verified by: ${verificationData.verifiedBy || 'VerificationStreet'} | ${date}`;
+      const verifierText = `Verified by: ${verificationData.verifiedBy || 'VerifEye'} | ${date}`;
       ctx.fillText(verifierText, 20, 45);
       
       resolve(canvas.toDataURL('image/jpeg', 0.9));
@@ -234,7 +234,7 @@ export const addEmploymentStamp = (imageData, status, verificationData = {}) => 
       
       ctx.font = '14px Arial';
       const date = verificationData.date || new Date().toLocaleDateString();
-      const verifierText = `Verified by: ${verificationData.verifiedBy || 'VerificationStreet'} | ${date}`;
+      const verifierText = `Verified by: ${verificationData.verifiedBy || 'VerifEye'} | ${date}`;
       ctx.fillText(verifierText, 20, 45);
       
       // Add stamp in corner

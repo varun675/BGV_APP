@@ -77,6 +77,7 @@ export const generateBGVReport = async (formData) => {
 
   // Add logo to first page
   addLogoToPage();
+  y = margin + 15;
 
   const checkPageBreak = (neededSpace = 20) => {
     if (y + neededSpace > pageHeight - margin) {
@@ -106,18 +107,18 @@ export const generateBGVReport = async (formData) => {
     }
   };
 
-  doc.setFillColor(15, 23, 42);
+  doc.setFillColor(75, 85, 99);
   doc.rect(margin, y, contentWidth, 18, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
-  doc.text('VerificationStreet', margin + 5, y + 12);
+  doc.text('VerifEye', margin + 5, y + 12);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.text('Background Verification Services', margin + 35, y + 12);
   y += 25;
 
-  doc.setTextColor(15, 23, 42);
+  doc.setTextColor(55, 65, 81);
   doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
   doc.text('BACKGROUND VERIFICATION REPORT', pageWidth / 2, y, { align: 'center' });
@@ -129,7 +130,7 @@ export const generateBGVReport = async (formData) => {
   y += 12;
 
   doc.setFontSize(8);
-  doc.setTextColor(15, 23, 42);
+  doc.setTextColor(55, 65, 81);
   doc.text('Status Legend:', margin, y);
   
   doc.setFillColor(16, 185, 129);
@@ -150,7 +151,7 @@ export const generateBGVReport = async (formData) => {
   
   y += 12;
 
-  doc.setFillColor(15, 23, 42);
+  doc.setFillColor(75, 85, 99);
   doc.rect(margin, y, contentWidth, 8, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(10);
@@ -178,7 +179,7 @@ export const generateBGVReport = async (formData) => {
     doc.setTextColor(100, 116, 139);
     doc.setFont('helvetica', 'normal');
     doc.text(item.label, margin + 2, y);
-    doc.setTextColor(15, 23, 42);
+    doc.setTextColor(55, 65, 81);
     doc.setFont('helvetica', 'bold');
     const valueText = String(item.value || 'N/A').substring(0, 60);
     doc.text(valueText, margin + 60, y);
@@ -187,7 +188,7 @@ export const generateBGVReport = async (formData) => {
 
   y += 8;
 
-  doc.setFillColor(15, 23, 42);
+  doc.setFillColor(75, 85, 99);
   doc.rect(margin, y, contentWidth, 8, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(10);
@@ -200,7 +201,7 @@ export const generateBGVReport = async (formData) => {
   doc.setDrawColor(226, 232, 240);
   doc.rect(margin, y, contentWidth, 8);
   
-  doc.setTextColor(15, 23, 42);
+  doc.setTextColor(55, 65, 81);
   doc.setFontSize(8);
   doc.setFont('helvetica', 'bold');
   doc.text('S.No', margin + 3, y + 5.5);
@@ -220,7 +221,7 @@ export const generateBGVReport = async (formData) => {
     doc.setDrawColor(226, 232, 240);
     doc.rect(margin, y, contentWidth, 8);
     
-    doc.setTextColor(15, 23, 42);
+    doc.setTextColor(55, 65, 81);
     doc.text(row.no, margin + 3, y + 5.5);
     doc.text(row.component, margin + 20, y + 5.5);
     doc.text(getStatusText(row.status), margin + 90, y + 5.5);
@@ -229,9 +230,10 @@ export const generateBGVReport = async (formData) => {
   });
 
   doc.addPage();
-  y = margin;
+  addLogoToPage();
+  y = margin + 15;
 
-  doc.setFillColor(15, 23, 42);
+  doc.setFillColor(75, 85, 99);
   doc.rect(margin, y, contentWidth, 8, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(10);
@@ -269,7 +271,7 @@ export const generateBGVReport = async (formData) => {
     doc.setTextColor(100, 116, 139);
     doc.setFont('helvetica', 'normal');
     doc.text(item.label, margin + 2, y);
-    doc.setTextColor(15, 23, 42);
+    doc.setTextColor(55, 65, 81);
     doc.setFont('helvetica', 'bold');
     doc.text(String(item.value || 'N/A').substring(0, 50), margin + 55, y);
     y += 7;
@@ -279,7 +281,7 @@ export const generateBGVReport = async (formData) => {
     y += 5;
     checkPageBreak(90);
     doc.setFontSize(9);
-    doc.setTextColor(15, 23, 42);
+    doc.setTextColor(55, 65, 81);
     doc.setFont('helvetica', 'bold');
     doc.text('Supporting Document:', margin, y);
     y += 5;
@@ -291,7 +293,7 @@ export const generateBGVReport = async (formData) => {
   y += 10;
   checkPageBreak(80);
 
-  doc.setFillColor(15, 23, 42);
+  doc.setFillColor(75, 85, 99);
   doc.rect(margin, y, contentWidth, 8, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(10);
@@ -338,7 +340,7 @@ export const generateBGVReport = async (formData) => {
     doc.setTextColor(100, 116, 139);
     doc.setFont('helvetica', 'normal');
     doc.text(item.label, margin + 2, y);
-    doc.setTextColor(15, 23, 42);
+    doc.setTextColor(55, 65, 81);
     doc.setFont('helvetica', 'bold');
     doc.text(String(item.value || 'N/A').substring(0, 50), margin + 55, y);
     y += 7;
@@ -348,7 +350,7 @@ export const generateBGVReport = async (formData) => {
     y += 5;
     checkPageBreak(90);
     doc.setFontSize(9);
-    doc.setTextColor(15, 23, 42);
+    doc.setTextColor(55, 65, 81);
     doc.setFont('helvetica', 'bold');
     doc.text('Supporting Document:', margin, y);
     y += 5;
@@ -358,9 +360,10 @@ export const generateBGVReport = async (formData) => {
   }
 
   doc.addPage();
-  y = margin;
+  addLogoToPage();
+  y = margin + 15;
 
-  doc.setFillColor(15, 23, 42);
+  doc.setFillColor(75, 85, 99);
   doc.rect(margin, y, contentWidth, 8, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(10);
@@ -406,7 +409,7 @@ export const generateBGVReport = async (formData) => {
     doc.setTextColor(100, 116, 139);
     doc.setFont('helvetica', 'normal');
     doc.text(item.label, margin + 2, y);
-    doc.setTextColor(15, 23, 42);
+    doc.setTextColor(55, 65, 81);
     doc.setFont('helvetica', 'bold');
     doc.text(String(item.value || 'N/A').substring(0, 50), margin + 55, y);
     y += 7;
@@ -416,7 +419,7 @@ export const generateBGVReport = async (formData) => {
     y += 5;
     checkPageBreak(90);
     doc.setFontSize(9);
-    doc.setTextColor(15, 23, 42);
+    doc.setTextColor(55, 65, 81);
     doc.setFont('helvetica', 'bold');
     doc.text('GPS Verified Document:', margin, y);
     y += 5;
@@ -426,9 +429,10 @@ export const generateBGVReport = async (formData) => {
   }
 
   doc.addPage();
-  y = margin;
+  addLogoToPage();
+  y = margin + 15;
 
-  doc.setFillColor(15, 23, 42);
+  doc.setFillColor(75, 85, 99);
   doc.rect(margin, y, contentWidth, 8, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(10);
@@ -439,16 +443,16 @@ export const generateBGVReport = async (formData) => {
   const restrictions = [
     '1. This report is confidential and intended solely for the use of the client.',
     '2. The verification is based on information provided by the candidate and third-party sources.',
-    '3. VerificationStreet does not guarantee the accuracy of information provided by third parties.',
+    '3. VerifEye does not guarantee the accuracy of information provided by third parties.',
     '4. This report should not be shared with unauthorized parties without prior written consent.',
     '5. The report is valid as of the date of issuance and may not reflect subsequent changes.',
-    '6. VerificationStreet shall not be liable for any decisions made based on this report.',
+    '6. VerifEye shall not be liable for any decisions made based on this report.',
     '7. All verification activities are conducted in accordance with applicable laws.',
     '8. Any disputes arising from this report shall be subject to arbitration.',
   ];
 
   doc.setFontSize(9);
-  doc.setTextColor(15, 23, 42);
+  doc.setTextColor(55, 65, 81);
   doc.setFont('helvetica', 'normal');
   restrictions.forEach((text) => {
     const lines = doc.splitTextToSize(text, contentWidth - 10);
