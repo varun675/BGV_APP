@@ -161,13 +161,212 @@ function App() {
     }
     
     setIsGenerating(true);
-    toast.info("Generating PDF report...");
+    toast.info("Generating PDF report... Please wait");
     
     try {
-      console.log("Starting PDF generation with data:", formData);
-      const fileName = await generatePDF(formData);
-      console.log("PDF generated successfully:", fileName);
+      // Dynamic import to ensure jsPDF loads properly
+      const jsPDF = (await import('jspdf')).default;
+      
+      const doc = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const margin = 15;
+      let y = margin;
+      
+      // Header
+      doc.setFillColor(15, 23, 42);
+      doc.rect(margin, y, pageWidth - margin * 2, 18, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text('VerifEye - Background Verification Report', margin + 5, y + 12);
+      y += 25;
+      
+      // Title
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(14);
+      doc.text('BACKGROUND VERIFICATION REPORT', pageWidth / 2, y, { align: 'center' });
+      y += 15;
+      
+      // Candidate Info Section
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('CANDIDATE INFORMATION', margin, y);
+      y += 8;
+      
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      const info = [
+        ['Candidate Name:', formData.candidateName],
+        ['Father\'s Name:', formData.fatherName],
+        ['Date of Birth:', formData.dateOfBirth],
+        ['Contact:', formData.contactNumber],
+        ['Address:', formData.candidateAddress],
+        ['Case Number:', formData.caseNumber],
+        ['Initiation Date:', formData.initiationDate],
+        ['Delivery Date:', formData.deliveryDate],
+      ];
+      
+      info.forEach(([label, value]) => {
+        doc.setFont('helvetica', 'bold');
+        doc.text(label, margin, y);
+        doc.setFont('helvetica', 'normal');
+        doc.text(String(value || 'N/A'), margin + 45, y);
+        y += 6;
+      });
+      
+      y += 10;
+      
+      // Executive Summary
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('EXECUTIVE SUMMARY', margin, y);
+      y += 8;
+      
+      doc.setFontSize(10);
+      const getStatusText = (status) => {
+        const labels = { verified: 'VERIFIED', major: 'MAJOR DISCREPANCY', minor: 'MINOR DISCREPANCY', unable: 'UNABLE TO VERIFY' };
+        return labels[status] || 'UNKNOWN';
+      };
+      
+      const summary = [
+        ['Education Verification:', getStatusText(formData.education.status)],
+        ['Employment Verification:', getStatusText(formData.employment.status)],
+        ['Address Verification:', getStatusText(formData.address.status)],
+      ];
+      
+      summary.forEach(([label, value]) => {
+        doc.setFont('helvetica', 'normal');
+        doc.text(label, margin, y);
+        doc.setFont('helvetica', 'bold');
+        doc.text(value, margin + 55, y);
+        y += 6;
+      });
+      
+      // Education Details
+      doc.addPage();
+      y = margin;
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('EDUCATION VERIFICATION', margin, y);
+      y += 8;
+      
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      const eduInfo = [
+        ['University:', formData.education.universityName],
+        ['Course:', formData.education.courseName],
+        ['Roll Number:', formData.education.rollNumber],
+        ['Passing Year:', formData.education.passingYear],
+        ['Verified By:', formData.education.verifiedBy],
+        ['Mode:', formData.education.modeOfVerification],
+        ['Status:', getStatusText(formData.education.status)],
+        ['Remarks:', formData.education.remarks],
+      ];
+      
+      eduInfo.forEach(([label, value]) => {
+        doc.setFont('helvetica', 'bold');
+        doc.text(label, margin, y);
+        doc.setFont('helvetica', 'normal');
+        const text = String(value || 'N/A').substring(0, 80);
+        doc.text(text, margin + 35, y);
+        y += 6;
+      });
+      
+      // Employment Details
+      y += 10;
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('EMPLOYMENT VERIFICATION', margin, y);
+      y += 8;
+      
+      doc.setFontSize(10);
+      const empInfo = [
+        ['Company:', formData.employment.companyName],
+        ['Designation:', formData.employment.designation],
+        ['Employee Code:', formData.employment.employeeCode],
+        ['Date of Joining:', formData.employment.dateOfJoining],
+        ['Last Working Day:', formData.employment.lastWorkingDay],
+        ['Salary:', formData.employment.salary],
+        ['Status:', getStatusText(formData.employment.status)],
+        ['Remarks:', formData.employment.remarks],
+      ];
+      
+      empInfo.forEach(([label, value]) => {
+        doc.setFont('helvetica', 'bold');
+        doc.text(label, margin, y);
+        doc.setFont('helvetica', 'normal');
+        const text = String(value || 'N/A').substring(0, 80);
+        doc.text(text, margin + 40, y);
+        y += 6;
+      });
+      
+      // Address Details
+      doc.addPage();
+      y = margin;
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('ADDRESS VERIFICATION', margin, y);
+      y += 8;
+      
+      doc.setFontSize(10);
+      const addrInfo = [
+        ['Address:', formData.address.addressAsPerDocument || formData.candidateAddress],
+        ['Latitude:', formData.address.latitude],
+        ['Longitude:', formData.address.longitude],
+        ['Pincode:', formData.address.pincode],
+        ['Verified By:', formData.address.verifiedBy],
+        ['Mode:', formData.address.modeOfVerification],
+        ['Ownership:', formData.address.ownershipStatus],
+        ['Status:', getStatusText(formData.address.status)],
+        ['Remarks:', formData.address.remarks],
+      ];
+      
+      addrInfo.forEach(([label, value]) => {
+        doc.setFont('helvetica', 'bold');
+        doc.text(label, margin, y);
+        doc.setFont('helvetica', 'normal');
+        const text = String(value || 'N/A').substring(0, 70);
+        doc.text(text, margin + 30, y);
+        y += 6;
+      });
+      
+      // Generate filename
+      const today = new Date();
+      const dateStr = `${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}`;
+      const fileName = `BGV_Report_${formData.candidateName.replace(/\s+/g, '_')}_${dateStr}.pdf`;
+      
+      // Download using multiple methods for compatibility
+      try {
+        // Method 1: Direct save
+        doc.save(fileName);
+      } catch (e1) {
+        console.log("Method 1 failed, trying blob method");
+        try {
+          // Method 2: Blob
+          const blob = doc.output('blob');
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        } catch (e2) {
+          console.log("Method 2 failed, trying data URI method");
+          // Method 3: Data URI
+          const dataUri = doc.output('datauristring');
+          const a = document.createElement('a');
+          a.href = dataUri;
+          a.download = fileName;
+          a.click();
+        }
+      }
+      
       toast.success(`Report downloaded: ${fileName}`);
+      console.log("PDF generated successfully:", fileName);
+      
     } catch (error) {
       console.error("PDF generation error:", error);
       toast.error(`Failed to generate PDF: ${error.message}`);
