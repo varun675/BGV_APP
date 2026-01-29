@@ -16,6 +16,7 @@ import { Toaster, toast } from "sonner";
 import FileUpload from "./components/FileUpload";
 import { StatusSelect, StatusBadge } from "./components/StatusSelect";
 import { generateCaseNumber, calculateInitiationDate, formatDate, formatDateForInput, initialFormState } from "./utils/helpers";
+import { generateBGVReport } from "./utils/pdfGenerator";
 import { addGPSWatermark, addVerificationStamp, addEmploymentStamp } from "./utils/imageWatermark";
 
 const steps = [
