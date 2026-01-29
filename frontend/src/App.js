@@ -32,7 +32,6 @@ function App() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState(initialFormState);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [pdfPreview, setPdfPreview] = useState(null);
   const [pdfBlob, setPdfBlob] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
 
