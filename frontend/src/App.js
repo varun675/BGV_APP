@@ -397,76 +397,92 @@ function App() {
       {/* PDF Preview Modal */}
       {showPreview && pdfPreview && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl w-full max-w-6xl h-[90vh] flex flex-col shadow-2xl">
+          <div className="bg-white rounded-xl w-full max-w-4xl flex flex-col shadow-2xl">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-4 border-b bg-slate-50 rounded-t-xl">
               <div className="flex items-center gap-3">
                 <FileText className="w-6 h-6 text-blue-600" />
                 <div>
-                  <h2 className="font-semibold text-slate-800">PDF Preview</h2>
+                  <h2 className="font-semibold text-slate-800">PDF Ready for Download</h2>
                   <p className="text-sm text-slate-500">{pdfBlob?.fileName}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <Button
-                  onClick={handleDownloadPDF}
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                  data-testid="modal-download-btn"
-                >
-                  <FileDown className="w-4 h-4 mr-2" />
-                  Download PDF
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={closePreview}
-                  data-testid="close-preview-btn"
-                >
-                  <X className="w-5 h-5" />
-                </Button>
-              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={closePreview}
+                data-testid="close-preview-btn"
+              >
+                <X className="w-5 h-5" />
+              </Button>
             </div>
             
-            {/* PDF Viewer */}
-            <div className="flex-1 p-4 bg-slate-200 overflow-hidden">
-              <object
-                data={pdfPreview}
-                type="application/pdf"
-                className="w-full h-full rounded-lg"
-                data-testid="pdf-preview-object"
-              >
-                <embed
-                  src={pdfPreview}
-                  type="application/pdf"
-                  className="w-full h-full"
-                />
-                <p className="text-center p-8">
-                  Your browser does not support PDF preview. 
-                  <br />
-                  <Button onClick={handleDownloadPDF} className="mt-4">
-                    Click here to download the PDF
-                  </Button>
-                </p>
-              </object>
+            {/* Preview Content */}
+            <div className="p-6 space-y-6">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
+                <Check className="w-6 h-6 text-green-600" />
+                <div>
+                  <p className="font-medium text-green-800">PDF Generated Successfully!</p>
+                  <p className="text-sm text-green-600">Your BGV report is ready to download.</p>
+                </div>
+              </div>
+              
+              {/* Report Summary in Modal */}
+              <div className="bg-slate-50 rounded-lg p-4 border">
+                <h3 className="font-semibold text-slate-700 mb-3">Report Summary</h3>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div><span className="text-slate-500">Candidate:</span> <span className="font-medium">{formData.candidateName}</span></div>
+                  <div><span className="text-slate-500">Case #:</span> <span className="font-medium">{formData.caseNumber}</span></div>
+                  <div><span className="text-slate-500">Education:</span> <StatusBadge status={formData.education.status} /></div>
+                  <div><span className="text-slate-500">Employment:</span> <StatusBadge status={formData.employment.status} /></div>
+                  <div><span className="text-slate-500">Address:</span> <StatusBadge status={formData.address.status} /></div>
+                </div>
+              </div>
+              
+              {/* Download Options */}
+              <div className="flex flex-col gap-3">
+                <Button
+                  size="lg"
+                  onClick={handleDownloadPDF}
+                  className="w-full bg-green-600 hover:bg-green-700 py-6"
+                  data-testid="modal-download-btn"
+                >
+                  <Download className="w-5 h-5 mr-2" />
+                  Download PDF to Computer
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => {
+                    const newWindow = window.open('', '_blank');
+                    if (newWindow) {
+                      newWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                          <head><title>${pdfBlob?.fileName}</title></head>
+                          <body style="margin:0;padding:0;overflow:hidden;">
+                            <embed width="100%" height="100%" src="${pdfPreview}" type="application/pdf" style="position:absolute;top:0;left:0;right:0;bottom:0;" />
+                          </body>
+                        </html>
+                      `);
+                      newWindow.document.close();
+                    }
+                  }}
+                  className="w-full py-6"
+                  data-testid="open-new-tab-btn"
+                >
+                  <Eye className="w-5 h-5 mr-2" />
+                  Open PDF in New Tab
+                </Button>
+              </div>
             </div>
             
             {/* Modal Footer */}
-            <div className="p-4 border-t bg-slate-50 rounded-b-xl flex items-center justify-between">
-              <p className="text-sm text-slate-500">
-                Tip: You can also right-click on the preview and select "Save as" to download
+            <div className="p-4 border-t bg-slate-50 rounded-b-xl">
+              <p className="text-xs text-slate-500 text-center">
+                If download doesn't start, try "Open in New Tab" and save from there.
               </p>
-              <div className="flex gap-3">
-                <Button variant="outline" onClick={closePreview}>
-                  Close
-                </Button>
-                <Button
-                  onClick={handleDownloadPDF}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Save to Computer
-                </Button>
-              </div>
             </div>
           </div>
         </div>
