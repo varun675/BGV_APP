@@ -337,34 +337,16 @@ function App() {
       const dateStr = `${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}`;
       const fileName = `BGV_Report_${formData.candidateName.replace(/\s+/g, '_')}_${dateStr}.pdf`;
       
-      // Open PDF in new window/tab (most reliable method)
-      const pdfDataUri = doc.output('dataurlstring');
-      const newWindow = window.open('', '_blank');
-      if (newWindow) {
-        newWindow.document.write(`
-          <html>
-            <head><title>${fileName}</title></head>
-            <body style="margin:0;padding:0;">
-              <embed width="100%" height="100%" src="${pdfDataUri}" type="application/pdf" />
-            </body>
-          </html>
-        `);
-        newWindow.document.close();
-        toast.success(`Report opened in new tab: ${fileName}`);
-      } else {
-        // Fallback: try direct download
-        const blob = doc.output('blob');
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        toast.success(`Report downloaded: ${fileName}`);
-      }
+      // Generate PDF blob and data URL for preview
+      const blob = doc.output('blob');
+      const dataUrl = doc.output('dataurlstring');
       
+      // Store for preview and download
+      setPdfBlob({ blob, fileName });
+      setPdfPreview(dataUrl);
+      setShowPreview(true);
+      
+      toast.success("PDF generated! Preview ready.");
       console.log("PDF generated successfully:", fileName);
       
     } catch (error) {
@@ -373,6 +355,33 @@ function App() {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  // Download the generated PDF
+  const handleDownloadPDF = () => {
+    if (!pdfBlob) {
+      toast.error("Please generate the PDF first");
+      return;
+    }
+    
+    try {
+      const url = window.URL.createObjectURL(pdfBlob.blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = pdfBlob.fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      toast.success(`Downloaded: ${pdfBlob.fileName}`);
+    } catch (error) {
+      toast.error("Download failed. Try right-click and 'Save as' on the preview.");
+    }
+  };
+
+  // Close preview modal
+  const closePreview = () => {
+    setShowPreview(false);
   };
 
   const pageVariants = {
@@ -384,6 +393,71 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <Toaster position="top-right" richColors />
+      
+      {/* PDF Preview Modal */}
+      {showPreview && pdfPreview && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl w-full max-w-6xl h-[90vh] flex flex-col shadow-2xl">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b bg-slate-50 rounded-t-xl">
+              <div className="flex items-center gap-3">
+                <FileText className="w-6 h-6 text-blue-600" />
+                <div>
+                  <h2 className="font-semibold text-slate-800">PDF Preview</h2>
+                  <p className="text-sm text-slate-500">{pdfBlob?.fileName}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={handleDownloadPDF}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  data-testid="modal-download-btn"
+                >
+                  <FileDown className="w-4 h-4 mr-2" />
+                  Download PDF
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={closePreview}
+                  data-testid="close-preview-btn"
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+            </div>
+            
+            {/* PDF Viewer */}
+            <div className="flex-1 p-4 bg-slate-200 overflow-hidden">
+              <iframe
+                src={pdfPreview}
+                className="w-full h-full rounded-lg border-0"
+                title="PDF Preview"
+                data-testid="pdf-preview-iframe"
+              />
+            </div>
+            
+            {/* Modal Footer */}
+            <div className="p-4 border-t bg-slate-50 rounded-b-xl flex items-center justify-between">
+              <p className="text-sm text-slate-500">
+                Tip: You can also right-click on the preview and select "Save as" to download
+              </p>
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={closePreview}>
+                  Close
+                </Button>
+                <Button
+                  onClick={handleDownloadPDF}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Save to Computer
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Sidebar */}
       <aside className="sidebar">
