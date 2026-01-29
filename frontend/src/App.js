@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   User, GraduationCap, Briefcase, MapPin, FileText, 
   ChevronRight, Check, Download, ArrowLeft, ArrowRight,
-  Shield
+  Shield, MapPinned
 } from "lucide-react";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
@@ -17,6 +17,7 @@ import FileUpload from "./components/FileUpload";
 import { StatusSelect, StatusBadge } from "./components/StatusSelect";
 import { generateCaseNumber, calculateInitiationDate, formatDate, formatDateForInput, initialFormState } from "./utils/helpers";
 import { generatePDF } from "./utils/pdfGenerator";
+import { addGPSWatermark, addVerificationStamp, addEmploymentStamp } from "./utils/imageWatermark";
 
 const steps = [
   { id: 1, name: "Candidate Info", icon: User },
