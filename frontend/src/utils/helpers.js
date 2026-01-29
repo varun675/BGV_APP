@@ -57,14 +57,14 @@ export const getStatusColorClass = (status) => {
   return colors[status] || 'status-unable';
 };
 
-// Initial form state
+// Initial form state with mock data
 export const initialFormState = {
   // Candidate Info
-  candidateName: '',
-  fatherName: '',
-  dateOfBirth: '',
-  contactNumber: '',
-  candidateAddress: '',
+  candidateName: 'Wasim Hussain',
+  fatherName: 'Mohammed Hussain',
+  dateOfBirth: '1995-08-15',
+  contactNumber: '9876543210',
+  candidateAddress: 'C-46, No.13 KH No-47, Shashi Garden, Patpar Ganj, East Delhi, Delhi – 110091',
   
   // Auto-generated
   caseNumber: '',
@@ -74,51 +74,51 @@ export const initialFormState = {
   // Education Verification
   education: {
     status: 'verified',
-    universityName: '',
-    courseName: '',
-    rollNumber: '',
-    passingYear: '',
-    verifiedBy: '',
+    universityName: 'Delhi University',
+    courseName: 'Bachelor of Technology (Computer Science)',
+    rollNumber: 'DU2018CS4521',
+    passingYear: '2020',
+    verifiedBy: 'University Records Department',
     modeOfVerification: 'Email',
-    remarks: '',
+    remarks: 'All educational credentials verified successfully through university portal.',
     document: null
   },
   
   // Employment Verification
   employment: {
-    status: 'verified',
-    companyName: '',
-    designation: '',
-    employeeCode: '',
-    dateOfJoining: '',
-    lastWorkingDay: '',
-    reportingManager: '',
-    salary: '',
-    reasonForLeaving: '',
+    status: 'major',
+    companyName: 'TechSoft Solutions Pvt Ltd',
+    designation: 'Senior Software Engineer',
+    employeeCode: 'TS2021045',
+    dateOfJoining: '2021-02-01',
+    lastWorkingDay: '2024-10-15',
+    reportingManager: 'Rajesh Kumar',
+    salary: '15,00,000 per annum',
+    reasonForLeaving: 'Better Career Opportunity',
     eligibleToRehire: 'Yes',
     natureOfEmployment: 'Full Time',
     exitFormalities: 'Completed',
     performanceIssues: 'No',
-    verifiedBy: '',
+    verifiedBy: 'HR Department - TechSoft Solutions',
     modeOfVerification: 'Email',
-    remarks: '',
+    remarks: 'Discrepancy found in reported designation. Candidate claimed Senior Engineer but records show Software Engineer.',
     document: null
   },
   
   // Address Verification
   address: {
     status: 'verified',
-    addressAsPerDocument: '',
-    verifiedBy: '',
-    relationWithSubject: '',
+    addressAsPerDocument: 'C-46, No.13 KH No-47, Shashi Garden, Patpar Ganj, East Delhi, Delhi – 110091',
+    verifiedBy: 'Field Verification Team',
+    relationWithSubject: 'Self',
     modeOfVerification: 'Physical',
-    ownershipStatus: 'Owned',
-    houseType: '',
-    periodOfStay: '',
-    familyMembers: '',
-    neighbourName: '',
-    neighbourContact: '',
-    remarks: '',
+    ownershipStatus: 'Rented',
+    houseType: '2BHK Apartment, White Building',
+    periodOfStay: '3 Years',
+    familyMembers: '4',
+    neighbourName: 'Mr. Ramesh Sharma',
+    neighbourContact: '9812345678',
+    remarks: 'Physical verification completed. Candidate residing at given address. Confirmed by neighbour.',
     document: null
   }
 };
