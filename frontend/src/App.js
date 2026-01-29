@@ -456,12 +456,24 @@ function App() {
                   </div>
                   
                   <FileUpload
-                    label="Education Document (Certificate/Marksheet)"
+                    label="Education Document (Certificate/Marksheet) - Will be stamped with verification status"
                     accept="image/*,.pdf"
                     value={formData.education.document}
-                    onChange={(file) => updateNestedFormData('education', 'document', file)}
-                    helpText="Upload degree certificate or marksheet"
+                    onChange={handleEducationDocUpload}
+                    helpText="Upload degree certificate or marksheet (Image files will get verification stamp)"
                   />
+                  
+                  {formData.education.stampedDocument && (
+                    <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                      <p className="text-sm font-medium text-green-800 mb-2">✓ Stamped Document Preview:</p>
+                      <img 
+                        src={formData.education.stampedDocument.data} 
+                        alt="Stamped document" 
+                        className="max-w-full h-auto rounded border"
+                        style={{ maxHeight: '300px' }}
+                      />
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
