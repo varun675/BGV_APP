@@ -281,7 +281,6 @@ function App() {
                   variant="outline"
                   size="lg"
                   onClick={() => {
-                    // Generate blob from jsPDF doc and open directly
                     if (pdfBlob && pdfBlob.doc) {
                       const blob = pdfBlob.doc.output('blob');
                       const blobUrl = URL.createObjectURL(blob);
