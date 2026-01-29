@@ -429,12 +429,25 @@ function App() {
             
             {/* PDF Viewer */}
             <div className="flex-1 p-4 bg-slate-200 overflow-hidden">
-              <iframe
-                src={pdfPreview}
-                className="w-full h-full rounded-lg border-0"
-                title="PDF Preview"
-                data-testid="pdf-preview-iframe"
-              />
+              <object
+                data={pdfPreview}
+                type="application/pdf"
+                className="w-full h-full rounded-lg"
+                data-testid="pdf-preview-object"
+              >
+                <embed
+                  src={pdfPreview}
+                  type="application/pdf"
+                  className="w-full h-full"
+                />
+                <p className="text-center p-8">
+                  Your browser does not support PDF preview. 
+                  <br />
+                  <Button onClick={handleDownloadPDF} className="mt-4">
+                    Click here to download the PDF
+                  </Button>
+                </p>
+              </object>
             </div>
             
             {/* Modal Footer */}
