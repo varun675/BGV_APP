@@ -335,36 +335,34 @@ function App() {
       const dateStr = `${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}`;
       const fileName = `BGV_Report_${formData.candidateName.replace(/\s+/g, '_')}_${dateStr}.pdf`;
       
-      // Download using multiple methods for compatibility
-      try {
-        // Method 1: Direct save
-        doc.save(fileName);
-      } catch (e1) {
-        console.log("Method 1 failed, trying blob method");
-        try {
-          // Method 2: Blob
-          const blob = doc.output('blob');
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = fileName;
-          a.style.display = 'none';
-          document.body.appendChild(a);
-          a.click();
-          window.URL.revokeObjectURL(url);
-          document.body.removeChild(a);
-        } catch (e2) {
-          console.log("Method 2 failed, trying data URI method");
-          // Method 3: Data URI
-          const dataUri = doc.output('datauristring');
-          const a = document.createElement('a');
-          a.href = dataUri;
-          a.download = fileName;
-          a.click();
-        }
+      // Open PDF in new window/tab (most reliable method)
+      const pdfDataUri = doc.output('dataurlstring');
+      const newWindow = window.open('', '_blank');
+      if (newWindow) {
+        newWindow.document.write(`
+          <html>
+            <head><title>${fileName}</title></head>
+            <body style="margin:0;padding:0;">
+              <embed width="100%" height="100%" src="${pdfDataUri}" type="application/pdf" />
+            </body>
+          </html>
+        `);
+        newWindow.document.close();
+        toast.success(`Report opened in new tab: ${fileName}`);
+      } else {
+        // Fallback: try direct download
+        const blob = doc.output('blob');
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        toast.success(`Report downloaded: ${fileName}`);
       }
       
-      toast.success(`Report downloaded: ${fileName}`);
       console.log("PDF generated successfully:", fileName);
       
     } catch (error) {
