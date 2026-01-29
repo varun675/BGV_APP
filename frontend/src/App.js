@@ -1,52 +1,947 @@
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  User, GraduationCap, Briefcase, MapPin, FileText, 
+  ChevronRight, Check, Download, ArrowLeft, ArrowRight,
+  Shield
+} from "lucide-react";
+import { Button } from "./components/ui/button";
+import { Input } from "./components/ui/input";
+import { Label } from "./components/ui/label";
+import { Textarea } from "./components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
+import { Toaster, toast } from "sonner";
+import FileUpload from "./components/FileUpload";
+import { StatusSelect, StatusBadge } from "./components/StatusSelect";
+import { generateCaseNumber, calculateInitiationDate, formatDate, formatDateForInput, initialFormState } from "./utils/helpers";
+import { generatePDF } from "./utils/pdfGenerator";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+const steps = [
+  { id: 1, name: "Candidate Info", icon: User },
+  { id: 2, name: "Education", icon: GraduationCap },
+  { id: 3, name: "Employment", icon: Briefcase },
+  { id: 4, name: "Address", icon: MapPin },
+  { id: 5, name: "Preview & Download", icon: FileText },
+];
 
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
+function App() {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState(initialFormState);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // Generate case number on mount
+  useEffect(() => {
+    const caseNum = generateCaseNumber();
+    const today = new Date();
+    const initDate = calculateInitiationDate(today);
+    
+    setFormData(prev => ({
+      ...prev,
+      caseNumber: caseNum,
+      deliveryDate: formatDateForInput(today),
+      initiationDate: formatDateForInput(initDate)
+    }));
+  }, []);
+
+  const updateFormData = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const updateNestedFormData = (section, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [section]: { ...prev[section], [field]: value }
+    }));
+  };
+
+  const handleNext = () => {
+    if (currentStep < 5) {
+      setCurrentStep(prev => prev + 1);
     }
   };
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep(prev => prev - 1);
+    }
+  };
+
+  const handleGeneratePDF = async () => {
+    if (!formData.candidateName) {
+      toast.error("Please enter candidate name");
+      return;
+    }
+    
+    setIsGenerating(true);
+    try {
+      const fileName = await generatePDF(formData);
+      toast.success(`Report generated: ${fileName}`);
+    } catch (error) {
+      console.error("PDF generation error:", error);
+      toast.error("Failed to generate PDF. Please try again.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const pageVariants = {
+    initial: { opacity: 0, x: 20 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -20 }
+  };
 
   return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
-};
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <Toaster position="top-right" richColors />
+      
+      {/* Sidebar */}
+      <aside className="sidebar">
+        <div className="sidebar-header">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center">
+              <Shield className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="sidebar-logo">VerifEye</h1>
+              <p className="text-xs text-slate-400">BGV Report Generator</p>
+            </div>
+          </div>
+        </div>
+        
+        <nav className="sidebar-nav">
+          {steps.map((step) => {
+            const Icon = step.icon;
+            const isCompleted = currentStep > step.id;
+            const isActive = currentStep === step.id;
+            
+            return (
+              <div
+                key={step.id}
+                data-testid={`nav-step-${step.id}`}
+                className={`nav-item ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}
+                onClick={() => setCurrentStep(step.id)}
+              >
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                  isActive ? 'bg-white/20' : isCompleted ? 'bg-green-500/20' : 'bg-white/10'
+                }`}>
+                  {isCompleted ? (
+                    <Check className="w-4 h-4 text-green-400" />
+                  ) : (
+                    <Icon className="w-4 h-4" />
+                  )}
+                </div>
+                <span className="text-sm font-medium">{step.name}</span>
+                {isActive && <ChevronRight className="w-4 h-4 ml-auto" />}
+              </div>
+            );
+          })}
+        </nav>
+        
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10">
+          <div className="text-xs text-slate-400">
+            <p>Case: {formData.caseNumber}</p>
+            <p>Report Date: {formatDate(formData.deliveryDate)}</p>
+          </div>
+        </div>
+      </aside>
 
-function App() {
-  return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      {/* Main Content */}
+      <main className="main-content">
+        {/* Step Progress */}
+        <div className="step-indicator mb-8">
+          {steps.map((step, index) => (
+            <React.Fragment key={step.id}>
+              <div 
+                className={`step-dot ${
+                  currentStep === step.id ? 'active' : 
+                  currentStep > step.id ? 'completed' : 'pending'
+                }`}
+                data-testid={`step-dot-${step.id}`}
+              >
+                {currentStep > step.id ? <Check className="w-4 h-4" /> : step.id}
+              </div>
+              {index < steps.length - 1 && (
+                <div className={`step-line ${currentStep > step.id ? 'completed' : ''}`} />
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentStep}
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.3 }}
+          >
+            {/* Step 1: Candidate Info */}
+            {currentStep === 1 && (
+              <Card className="form-card" data-testid="step-1-form">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-3">
+                    <User className="w-6 h-6 text-blue-600" />
+                    Candidate Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="form-grid">
+                    <div>
+                      <Label htmlFor="candidateName">Candidate Name *</Label>
+                      <Input
+                        id="candidateName"
+                        data-testid="input-candidate-name"
+                        placeholder="Enter full name"
+                        value={formData.candidateName}
+                        onChange={(e) => updateFormData('candidateName', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="fatherName">Father's Name *</Label>
+                      <Input
+                        id="fatherName"
+                        data-testid="input-father-name"
+                        placeholder="Enter father's name"
+                        value={formData.fatherName}
+                        onChange={(e) => updateFormData('fatherName', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="form-grid">
+                    <div>
+                      <Label htmlFor="dateOfBirth">Date of Birth *</Label>
+                      <Input
+                        id="dateOfBirth"
+                        data-testid="input-dob"
+                        type="date"
+                        value={formData.dateOfBirth}
+                        onChange={(e) => updateFormData('dateOfBirth', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="contactNumber">Contact Number *</Label>
+                      <Input
+                        id="contactNumber"
+                        data-testid="input-contact"
+                        placeholder="Enter phone number"
+                        value={formData.contactNumber}
+                        onChange={(e) => updateFormData('contactNumber', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="candidateAddress">Candidate Address *</Label>
+                    <Textarea
+                      id="candidateAddress"
+                      data-testid="input-address"
+                      placeholder="Enter complete address"
+                      rows={3}
+                      value={formData.candidateAddress}
+                      onChange={(e) => updateFormData('candidateAddress', e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="p-4 bg-slate-50 rounded-lg border">
+                    <p className="text-sm text-slate-600 mb-2">Auto-Generated Information:</p>
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <span className="text-slate-500">Case Number:</span>
+                        <p className="font-semibold text-slate-800">{formData.caseNumber}</p>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">Initiation Date:</span>
+                        <p className="font-semibold text-slate-800">{formatDate(formData.initiationDate)}</p>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">Delivery Date:</span>
+                        <p className="font-semibold text-slate-800">{formatDate(formData.deliveryDate)}</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Step 2: Education Verification */}
+            {currentStep === 2 && (
+              <Card className="form-card" data-testid="step-2-form">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-3">
+                    <GraduationCap className="w-6 h-6 text-blue-600" />
+                    Education Verification
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <StatusSelect
+                    label="Verification Status"
+                    value={formData.education.status}
+                    onChange={(val) => updateNestedFormData('education', 'status', val)}
+                  />
+                  
+                  <div className="form-grid">
+                    <div>
+                      <Label>University/Institute Name</Label>
+                      <Input
+                        data-testid="input-university"
+                        placeholder="Enter university name"
+                        value={formData.education.universityName}
+                        onChange={(e) => updateNestedFormData('education', 'universityName', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label>Course Name</Label>
+                      <Input
+                        data-testid="input-course"
+                        placeholder="Enter course/degree name"
+                        value={formData.education.courseName}
+                        onChange={(e) => updateNestedFormData('education', 'courseName', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="form-grid">
+                    <div>
+                      <Label>Roll/Registration Number</Label>
+                      <Input
+                        data-testid="input-roll"
+                        placeholder="Enter roll number"
+                        value={formData.education.rollNumber}
+                        onChange={(e) => updateNestedFormData('education', 'rollNumber', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label>Passing Year</Label>
+                      <Input
+                        data-testid="input-passing-year"
+                        placeholder="e.g., 2020"
+                        value={formData.education.passingYear}
+                        onChange={(e) => updateNestedFormData('education', 'passingYear', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="form-grid">
+                    <div>
+                      <Label>Verified By</Label>
+                      <Input
+                        data-testid="input-edu-verified-by"
+                        placeholder="Verifier name"
+                        value={formData.education.verifiedBy}
+                        onChange={(e) => updateNestedFormData('education', 'verifiedBy', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label>Mode of Verification</Label>
+                      <Select 
+                        value={formData.education.modeOfVerification}
+                        onValueChange={(val) => updateNestedFormData('education', 'modeOfVerification', val)}
+                      >
+                        <SelectTrigger data-testid="select-edu-mode">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Email">Email</SelectItem>
+                          <SelectItem value="Phone">Phone</SelectItem>
+                          <SelectItem value="Physical">Physical Visit</SelectItem>
+                          <SelectItem value="Online Portal">Online Portal</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label>Remarks</Label>
+                    <Textarea
+                      data-testid="input-edu-remarks"
+                      placeholder="Additional remarks..."
+                      rows={2}
+                      value={formData.education.remarks}
+                      onChange={(e) => updateNestedFormData('education', 'remarks', e.target.value)}
+                    />
+                  </div>
+                  
+                  <FileUpload
+                    label="Education Document (Certificate/Marksheet)"
+                    accept="image/*,.pdf"
+                    value={formData.education.document}
+                    onChange={(file) => updateNestedFormData('education', 'document', file)}
+                    helpText="Upload degree certificate or marksheet"
+                  />
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Step 3: Employment Verification */}
+            {currentStep === 3 && (
+              <Card className="form-card" data-testid="step-3-form">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-3">
+                    <Briefcase className="w-6 h-6 text-blue-600" />
+                    Employment Verification
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <StatusSelect
+                    label="Verification Status"
+                    value={formData.employment.status}
+                    onChange={(val) => updateNestedFormData('employment', 'status', val)}
+                  />
+                  
+                  <div className="form-grid">
+                    <div>
+                      <Label>Company Name</Label>
+                      <Input
+                        data-testid="input-company"
+                        placeholder="Enter company name"
+                        value={formData.employment.companyName}
+                        onChange={(e) => updateNestedFormData('employment', 'companyName', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label>Designation</Label>
+                      <Input
+                        data-testid="input-designation"
+                        placeholder="Enter designation"
+                        value={formData.employment.designation}
+                        onChange={(e) => updateNestedFormData('employment', 'designation', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="form-grid">
+                    <div>
+                      <Label>Employee Code</Label>
+                      <Input
+                        data-testid="input-emp-code"
+                        placeholder="Enter employee code"
+                        value={formData.employment.employeeCode}
+                        onChange={(e) => updateNestedFormData('employment', 'employeeCode', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label>Salary</Label>
+                      <Input
+                        data-testid="input-salary"
+                        placeholder="Enter salary"
+                        value={formData.employment.salary}
+                        onChange={(e) => updateNestedFormData('employment', 'salary', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="form-grid">
+                    <div>
+                      <Label>Date of Joining</Label>
+                      <Input
+                        data-testid="input-doj"
+                        type="date"
+                        value={formData.employment.dateOfJoining}
+                        onChange={(e) => updateNestedFormData('employment', 'dateOfJoining', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label>Last Working Day</Label>
+                      <Input
+                        data-testid="input-lwd"
+                        type="date"
+                        value={formData.employment.lastWorkingDay}
+                        onChange={(e) => updateNestedFormData('employment', 'lastWorkingDay', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="form-grid">
+                    <div>
+                      <Label>Reporting Manager</Label>
+                      <Input
+                        data-testid="input-manager"
+                        placeholder="Manager name"
+                        value={formData.employment.reportingManager}
+                        onChange={(e) => updateNestedFormData('employment', 'reportingManager', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label>Reason for Leaving</Label>
+                      <Input
+                        data-testid="input-reason-leaving"
+                        placeholder="e.g., Career growth"
+                        value={formData.employment.reasonForLeaving}
+                        onChange={(e) => updateNestedFormData('employment', 'reasonForLeaving', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="form-grid">
+                    <div>
+                      <Label>Eligible to Rehire</Label>
+                      <Select 
+                        value={formData.employment.eligibleToRehire}
+                        onValueChange={(val) => updateNestedFormData('employment', 'eligibleToRehire', val)}
+                      >
+                        <SelectTrigger data-testid="select-rehire">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Yes">Yes</SelectItem>
+                          <SelectItem value="No">No</SelectItem>
+                          <SelectItem value="Not Disclosed">Not Disclosed</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Nature of Employment</Label>
+                      <Select 
+                        value={formData.employment.natureOfEmployment}
+                        onValueChange={(val) => updateNestedFormData('employment', 'natureOfEmployment', val)}
+                      >
+                        <SelectTrigger data-testid="select-nature">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Full Time">Full Time</SelectItem>
+                          <SelectItem value="Part Time">Part Time</SelectItem>
+                          <SelectItem value="Contract">Contract</SelectItem>
+                          <SelectItem value="Intern">Intern</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  
+                  <div className="form-grid">
+                    <div>
+                      <Label>Exit Formalities</Label>
+                      <Select 
+                        value={formData.employment.exitFormalities}
+                        onValueChange={(val) => updateNestedFormData('employment', 'exitFormalities', val)}
+                      >
+                        <SelectTrigger data-testid="select-exit">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Completed">Completed</SelectItem>
+                          <SelectItem value="Pending">Pending</SelectItem>
+                          <SelectItem value="Not Applicable">Not Applicable</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Performance/Integrity Issues</Label>
+                      <Select 
+                        value={formData.employment.performanceIssues}
+                        onValueChange={(val) => updateNestedFormData('employment', 'performanceIssues', val)}
+                      >
+                        <SelectTrigger data-testid="select-issues">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="No">No</SelectItem>
+                          <SelectItem value="Yes">Yes</SelectItem>
+                          <SelectItem value="Not Disclosed">Not Disclosed</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  
+                  <div className="form-grid">
+                    <div>
+                      <Label>Verified By</Label>
+                      <Input
+                        data-testid="input-emp-verified-by"
+                        placeholder="Verifier name"
+                        value={formData.employment.verifiedBy}
+                        onChange={(e) => updateNestedFormData('employment', 'verifiedBy', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label>Mode of Verification</Label>
+                      <Select 
+                        value={formData.employment.modeOfVerification}
+                        onValueChange={(val) => updateNestedFormData('employment', 'modeOfVerification', val)}
+                      >
+                        <SelectTrigger data-testid="select-emp-mode">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Email">Email</SelectItem>
+                          <SelectItem value="Phone">Phone</SelectItem>
+                          <SelectItem value="Physical">Physical Visit</SelectItem>
+                          <SelectItem value="HR Portal">HR Portal</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label>Remarks</Label>
+                    <Textarea
+                      data-testid="input-emp-remarks"
+                      placeholder="Additional remarks..."
+                      rows={2}
+                      value={formData.employment.remarks}
+                      onChange={(e) => updateNestedFormData('employment', 'remarks', e.target.value)}
+                    />
+                  </div>
+                  
+                  <FileUpload
+                    label="Employment Document (Offer Letter/Relieving Letter)"
+                    accept="image/*,.pdf"
+                    value={formData.employment.document}
+                    onChange={(file) => updateNestedFormData('employment', 'document', file)}
+                    helpText="Upload employment proof document"
+                  />
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Step 4: Address Verification */}
+            {currentStep === 4 && (
+              <Card className="form-card" data-testid="step-4-form">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-3">
+                    <MapPin className="w-6 h-6 text-blue-600" />
+                    Address Verification
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <StatusSelect
+                    label="Verification Status"
+                    value={formData.address.status}
+                    onChange={(val) => updateNestedFormData('address', 'status', val)}
+                  />
+                  
+                  <div>
+                    <Label>Address (As Per Document)</Label>
+                    <Textarea
+                      data-testid="input-addr-document"
+                      placeholder="Enter address as per ID document"
+                      rows={2}
+                      value={formData.address.addressAsPerDocument}
+                      onChange={(e) => updateNestedFormData('address', 'addressAsPerDocument', e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="form-grid">
+                    <div>
+                      <Label>Verified By</Label>
+                      <Input
+                        data-testid="input-addr-verified-by"
+                        placeholder="Verifier name"
+                        value={formData.address.verifiedBy}
+                        onChange={(e) => updateNestedFormData('address', 'verifiedBy', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label>Relationship with Subject</Label>
+                      <Input
+                        data-testid="input-relationship"
+                        placeholder="e.g., Self, Father, Neighbor"
+                        value={formData.address.relationWithSubject}
+                        onChange={(e) => updateNestedFormData('address', 'relationWithSubject', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="form-grid">
+                    <div>
+                      <Label>Mode of Verification</Label>
+                      <Select 
+                        value={formData.address.modeOfVerification}
+                        onValueChange={(val) => updateNestedFormData('address', 'modeOfVerification', val)}
+                      >
+                        <SelectTrigger data-testid="select-addr-mode">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Physical">Physical Visit</SelectItem>
+                          <SelectItem value="Phone">Phone</SelectItem>
+                          <SelectItem value="Digital">Digital Verification</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Ownership Status</Label>
+                      <Select 
+                        value={formData.address.ownershipStatus}
+                        onValueChange={(val) => updateNestedFormData('address', 'ownershipStatus', val)}
+                      >
+                        <SelectTrigger data-testid="select-ownership">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Owned">Owned</SelectItem>
+                          <SelectItem value="Rented">Rented</SelectItem>
+                          <SelectItem value="Leased">Leased</SelectItem>
+                          <SelectItem value="Family Owned">Family Owned</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  
+                  <div className="form-grid">
+                    <div>
+                      <Label>House Type & Color</Label>
+                      <Input
+                        data-testid="input-house-type"
+                        placeholder="e.g., 2BHK Apartment, White"
+                        value={formData.address.houseType}
+                        onChange={(e) => updateNestedFormData('address', 'houseType', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label>Period of Stay</Label>
+                      <Input
+                        data-testid="input-stay-period"
+                        placeholder="e.g., 5 Years"
+                        value={formData.address.periodOfStay}
+                        onChange={(e) => updateNestedFormData('address', 'periodOfStay', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="form-grid">
+                    <div>
+                      <Label>Number of Family Members</Label>
+                      <Input
+                        data-testid="input-family-members"
+                        placeholder="e.g., 4"
+                        value={formData.address.familyMembers}
+                        onChange={(e) => updateNestedFormData('address', 'familyMembers', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label>Neighbour Name</Label>
+                      <Input
+                        data-testid="input-neighbour-name"
+                        placeholder="Neighbour's name"
+                        value={formData.address.neighbourName}
+                        onChange={(e) => updateNestedFormData('address', 'neighbourName', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label>Neighbour Contact Number</Label>
+                    <Input
+                      data-testid="input-neighbour-contact"
+                      placeholder="Neighbour's phone"
+                      value={formData.address.neighbourContact}
+                      onChange={(e) => updateNestedFormData('address', 'neighbourContact', e.target.value)}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label>Remarks</Label>
+                    <Textarea
+                      data-testid="input-addr-remarks"
+                      placeholder="Additional remarks..."
+                      rows={2}
+                      value={formData.address.remarks}
+                      onChange={(e) => updateNestedFormData('address', 'remarks', e.target.value)}
+                    />
+                  </div>
+                  
+                  <FileUpload
+                    label="Address Proof Document (Aadhaar/Utility Bill)"
+                    accept="image/*,.pdf"
+                    value={formData.address.document}
+                    onChange={(file) => updateNestedFormData('address', 'document', file)}
+                    helpText="Upload address verification document or photo"
+                  />
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Step 5: Preview & Download */}
+            {currentStep === 5 && (
+              <Card className="form-card max-w-4xl" data-testid="step-5-form">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-3">
+                    <FileText className="w-6 h-6 text-blue-600" />
+                    Report Preview & Download
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Summary Section */}
+                  <div className="bg-slate-50 rounded-lg p-6 border">
+                    <h3 className="text-lg font-semibold text-slate-800 mb-4">Report Summary</h3>
+                    
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      <div>
+                        <p className="text-sm text-slate-500">Candidate Name</p>
+                        <p className="font-medium text-slate-800">{formData.candidateName || '-'}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-500">Case Reference</p>
+                        <p className="font-medium text-slate-800">{formData.caseNumber}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-500">Father's Name</p>
+                        <p className="font-medium text-slate-800">{formData.fatherName || '-'}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-500">Date of Birth</p>
+                        <p className="font-medium text-slate-800">{formatDate(formData.dateOfBirth) || '-'}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-500">Initiation Date</p>
+                        <p className="font-medium text-slate-800">{formatDate(formData.initiationDate)}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-500">Delivery Date</p>
+                        <p className="font-medium text-slate-800">{formatDate(formData.deliveryDate)}</p>
+                      </div>
+                    </div>
+                    
+                    {/* Executive Summary Table */}
+                    <h4 className="font-semibold text-slate-700 mb-3">Executive Summary</h4>
+                    <div className="bg-white rounded-lg border overflow-hidden">
+                      <table className="w-full text-sm">
+                        <thead className="bg-slate-100">
+                          <tr>
+                            <th className="text-left p-3 font-semibold">Component</th>
+                            <th className="text-left p-3 font-semibold">Status</th>
+                            <th className="text-left p-3 font-semibold">Document</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr className="border-t">
+                            <td className="p-3 flex items-center gap-2">
+                              <GraduationCap className="w-4 h-4 text-slate-500" />
+                              Education Verification
+                            </td>
+                            <td className="p-3">
+                              <StatusBadge status={formData.education.status} />
+                            </td>
+                            <td className="p-3">
+                              {formData.education.document ? (
+                                <span className="text-green-600 text-xs">✓ Uploaded</span>
+                              ) : (
+                                <span className="text-slate-400 text-xs">Not uploaded</span>
+                              )}
+                            </td>
+                          </tr>
+                          <tr className="border-t">
+                            <td className="p-3 flex items-center gap-2">
+                              <Briefcase className="w-4 h-4 text-slate-500" />
+                              Employment Verification
+                            </td>
+                            <td className="p-3">
+                              <StatusBadge status={formData.employment.status} />
+                            </td>
+                            <td className="p-3">
+                              {formData.employment.document ? (
+                                <span className="text-green-600 text-xs">✓ Uploaded</span>
+                              ) : (
+                                <span className="text-slate-400 text-xs">Not uploaded</span>
+                              )}
+                            </td>
+                          </tr>
+                          <tr className="border-t">
+                            <td className="p-3 flex items-center gap-2">
+                              <MapPin className="w-4 h-4 text-slate-500" />
+                              Address Verification
+                            </td>
+                            <td className="p-3">
+                              <StatusBadge status={formData.address.status} />
+                            </td>
+                            <td className="p-3">
+                              {formData.address.document ? (
+                                <span className="text-green-600 text-xs">✓ Uploaded</span>
+                              ) : (
+                                <span className="text-slate-400 text-xs">Not uploaded</span>
+                              )}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  
+                  {/* Color Legend */}
+                  <div className="flex items-center gap-6 p-4 bg-white rounded-lg border">
+                    <span className="text-sm font-medium text-slate-600">Status Legend:</span>
+                    <div className="flex items-center gap-2">
+                      <span className="w-3 h-3 rounded-full bg-green-500" />
+                      <span className="text-xs text-slate-600">Verified</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-3 h-3 rounded-full bg-red-500" />
+                      <span className="text-xs text-slate-600">Major Discrepancy</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-3 h-3 rounded-full bg-yellow-500" />
+                      <span className="text-xs text-slate-600">Minor Discrepancy</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-3 h-3 rounded-full bg-gray-500" />
+                      <span className="text-xs text-slate-600">Unable to Verify</span>
+                    </div>
+                  </div>
+                  
+                  {/* Download Button */}
+                  <div className="flex justify-center pt-4">
+                    <Button
+                      size="lg"
+                      data-testid="download-pdf-btn"
+                      onClick={handleGeneratePDF}
+                      disabled={isGenerating || !formData.candidateName}
+                      className="px-8 py-6 text-lg bg-blue-600 hover:bg-blue-700"
+                    >
+                      {isGenerating ? (
+                        <>
+                          <span className="animate-spin mr-2">⏳</span>
+                          Generating Report...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="w-5 h-5 mr-2" />
+                          Download BGV Report (PDF)
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  
+                  {!formData.candidateName && (
+                    <p className="text-center text-sm text-red-500">
+                      Please enter candidate name to generate report
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Navigation Buttons */}
+        <div className="flex justify-between mt-8 max-w-4xl">
+          <Button
+            variant="outline"
+            onClick={handleBack}
+            disabled={currentStep === 1}
+            data-testid="btn-back"
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Button>
+          
+          {currentStep < 5 && (
+            <Button
+              onClick={handleNext}
+              data-testid="btn-next"
+              className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800"
+            >
+              Next
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
+      </main>
     </div>
   );
 }
