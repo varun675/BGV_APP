@@ -1190,7 +1190,7 @@ function App() {
                       )}
                     </Button>
                     
-                    {pdfPreview && (
+                    {pdfBlob && (
                       <div className="flex gap-3">
                         <Button
                           variant="outline"
