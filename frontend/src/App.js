@@ -13,6 +13,7 @@ import { Textarea } from "./components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
 import { Toaster, toast } from "sonner";
+import { saveAs } from 'file-saver';
 import FileUpload from "./components/FileUpload";
 import { StatusSelect, StatusBadge } from "./components/StatusSelect";
 import { generateCaseNumber, calculateInitiationDate, formatDate, formatDateForInput, initialFormState } from "./utils/helpers";
