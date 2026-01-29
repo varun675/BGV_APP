@@ -355,9 +355,19 @@ export const generatePDF = async (formData) => {
     addFooter(i, totalPages);
   }
 
-  // Save the PDF
+  // Save the PDF using blob method for better compatibility
   const fileName = `BGV_Report_${formData.candidateName.replace(/\s+/g, '_')}_${formatDate(new Date())}.pdf`;
-  doc.save(fileName);
+  
+  // Get PDF as blob and trigger download
+  const pdfBlob = doc.output('blob');
+  const url = URL.createObjectURL(pdfBlob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
   
   return fileName;
 };
