@@ -196,7 +196,7 @@ function App() {
     }
   };
 
-  // Download the generated PDF
+  // Download the generated PDF using file-saver
   const handleDownloadPDF = () => {
     if (!pdfBlob) {
       toast.error("Please generate the PDF first");
@@ -204,17 +204,27 @@ function App() {
     }
     
     try {
-      const url = window.URL.createObjectURL(pdfBlob.blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = pdfBlob.fileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
+      saveAs(pdfBlob.blob, pdfBlob.fileName);
       toast.success(`Downloaded: ${pdfBlob.fileName}`);
     } catch (error) {
-      toast.error("Download failed. Try right-click and 'Save as' on the preview.");
+      console.error("Download error:", error);
+      // Fallback method
+      try {
+        const url = window.URL.createObjectURL(pdfBlob.blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', pdfBlob.fileName);
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        }, 100);
+        toast.success(`Downloaded: ${pdfBlob.fileName}`);
+      } catch (e) {
+        toast.error("Download failed. Please try 'Open in New Tab' instead.");
+      }
     }
   };
 
