@@ -1,6 +1,41 @@
 import jsPDF from 'jspdf';
 
-export const generateBGVReport = (formData) => {
+const addImageToPdf = async (doc, imageData, y, pageWidth, margin, contentWidth, maxHeight = 80) => {
+  if (!imageData) return y;
+  
+  try {
+    const img = new Image();
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+      img.src = imageData;
+    });
+    
+    const aspectRatio = img.width / img.height;
+    let imgWidth = Math.min(contentWidth, 160);
+    let imgHeight = imgWidth / aspectRatio;
+    
+    if (imgHeight > maxHeight) {
+      imgHeight = maxHeight;
+      imgWidth = imgHeight * aspectRatio;
+    }
+    
+    const pageHeight = doc.internal.pageSize.getHeight();
+    if (y + imgHeight + 10 > pageHeight - margin) {
+      doc.addPage();
+      y = margin;
+    }
+    
+    const imageFormat = imageData.includes('data:image/png') ? 'PNG' : 'JPEG';
+    doc.addImage(imageData, imageFormat, margin, y, imgWidth, imgHeight);
+    return y + imgHeight + 10;
+  } catch (error) {
+    console.error('Failed to add image to PDF:', error);
+    return y;
+  }
+};
+
+export const generateBGVReport = async (formData) => {
   const doc = new jsPDF('p', 'mm', 'a4');
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
@@ -8,7 +43,6 @@ export const generateBGVReport = (formData) => {
   const contentWidth = pageWidth - (margin * 2);
   let y = margin;
 
-  // Helper to add new page if needed
   const checkPageBreak = (neededSpace = 20) => {
     if (y + neededSpace > pageHeight - margin) {
       doc.addPage();
@@ -16,7 +50,6 @@ export const generateBGVReport = (formData) => {
     }
   };
 
-  // Get status text
   const getStatusText = (status) => {
     const labels = {
       verified: 'VERIFIED',
@@ -27,7 +60,6 @@ export const generateBGVReport = (formData) => {
     return labels[status] || 'UNKNOWN';
   };
 
-  // Format date
   const formatDate = (dateStr) => {
     if (!dateStr) return 'N/A';
     try {
@@ -38,9 +70,6 @@ export const generateBGVReport = (formData) => {
     }
   };
 
-  // ===== PAGE 1: Header and Candidate Info =====
-  
-  // Header bar
   doc.setFillColor(15, 23, 42);
   doc.rect(margin, y, contentWidth, 18, 'F');
   doc.setTextColor(255, 255, 255);
@@ -52,7 +81,6 @@ export const generateBGVReport = (formData) => {
   doc.text('Background Verification Services', margin + 35, y + 12);
   y += 25;
 
-  // Report Title
   doc.setTextColor(15, 23, 42);
   doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
@@ -64,34 +92,28 @@ export const generateBGVReport = (formData) => {
   doc.text('CONFIDENTIAL', pageWidth / 2, y, { align: 'center' });
   y += 12;
 
-  // Status Legend
   doc.setFontSize(8);
   doc.setTextColor(15, 23, 42);
   doc.text('Status Legend:', margin, y);
   
-  // Green box - Verified
   doc.setFillColor(16, 185, 129);
   doc.rect(margin + 25, y - 3, 4, 4, 'F');
   doc.text('Verified', margin + 31, y);
   
-  // Red box - Major
   doc.setFillColor(239, 68, 68);
   doc.rect(margin + 55, y - 3, 4, 4, 'F');
   doc.text('Major Discrepancy', margin + 61, y);
   
-  // Yellow box - Minor
   doc.setFillColor(245, 158, 11);
   doc.rect(margin + 100, y - 3, 4, 4, 'F');
   doc.text('Minor Discrepancy', margin + 106, y);
   
-  // Gray box - Unable
   doc.setFillColor(100, 116, 139);
   doc.rect(margin + 145, y - 3, 4, 4, 'F');
   doc.text('Unable to Verify', margin + 151, y);
   
   y += 12;
 
-  // Section: Candidate Information
   doc.setFillColor(15, 23, 42);
   doc.rect(margin, y, contentWidth, 8, 'F');
   doc.setTextColor(255, 255, 255);
@@ -100,7 +122,6 @@ export const generateBGVReport = (formData) => {
   doc.text('SUBJECT & REPORT DETAILS', margin + 3, y + 5.5);
   y += 12;
 
-  // Candidate details
   const candidateInfo = [
     { label: 'Complete Name of Subject', value: formData.candidateName },
     { label: "Father's Name", value: formData.fatherName },
@@ -130,7 +151,6 @@ export const generateBGVReport = (formData) => {
 
   y += 8;
 
-  // Section: Executive Summary
   doc.setFillColor(15, 23, 42);
   doc.rect(margin, y, contentWidth, 8, 'F');
   doc.setTextColor(255, 255, 255);
@@ -139,7 +159,6 @@ export const generateBGVReport = (formData) => {
   doc.text('EXECUTIVE SUMMARY', margin + 3, y + 5.5);
   y += 12;
 
-  // Table header
   doc.setFillColor(241, 245, 249);
   doc.rect(margin, y, contentWidth, 8, 'F');
   doc.setDrawColor(226, 232, 240);
@@ -154,7 +173,6 @@ export const generateBGVReport = (formData) => {
   doc.text('Remarks', margin + 130, y + 5.5);
   y += 8;
 
-  // Table rows
   const summaryData = [
     { no: '1', component: 'Education Verification', status: formData.education.status, remarks: formData.education.remarks || 'As per records' },
     { no: '2', component: 'Employment Verification', status: formData.employment.status, remarks: formData.employment.remarks || 'As per records' },
@@ -174,7 +192,6 @@ export const generateBGVReport = (formData) => {
     y += 8;
   });
 
-  // ===== PAGE 2: Education Verification =====
   doc.addPage();
   y = margin;
 
@@ -186,7 +203,6 @@ export const generateBGVReport = (formData) => {
   doc.text('EDUCATION VERIFICATION', margin + 3, y + 5.5);
   y += 12;
 
-  // Status badge
   const eduStatusColor = formData.education.status === 'verified' ? [16, 185, 129] :
                          formData.education.status === 'major' ? [239, 68, 68] :
                          formData.education.status === 'minor' ? [245, 158, 11] : [100, 116, 139];
@@ -223,7 +239,19 @@ export const generateBGVReport = (formData) => {
     y += 7;
   });
 
-  // ===== Employment Verification =====
+  if (formData.education.stampedDocument?.data || formData.education.document?.data) {
+    y += 5;
+    checkPageBreak(90);
+    doc.setFontSize(9);
+    doc.setTextColor(15, 23, 42);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Supporting Document:', margin, y);
+    y += 5;
+    
+    const eduImageData = formData.education.stampedDocument?.data || formData.education.document?.data;
+    y = await addImageToPdf(doc, eduImageData, y, pageWidth, margin, contentWidth);
+  }
+
   y += 10;
   checkPageBreak(80);
 
@@ -235,7 +263,6 @@ export const generateBGVReport = (formData) => {
   doc.text('EMPLOYMENT VERIFICATION', margin + 3, y + 5.5);
   y += 12;
 
-  // Status badge
   const empStatusColor = formData.employment.status === 'verified' ? [16, 185, 129] :
                          formData.employment.status === 'major' ? [239, 68, 68] :
                          formData.employment.status === 'minor' ? [245, 158, 11] : [100, 116, 139];
@@ -281,7 +308,19 @@ export const generateBGVReport = (formData) => {
     y += 7;
   });
 
-  // ===== PAGE 3: Address Verification =====
+  if (formData.employment.stampedDocument?.data || formData.employment.document?.data) {
+    y += 5;
+    checkPageBreak(90);
+    doc.setFontSize(9);
+    doc.setTextColor(15, 23, 42);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Supporting Document:', margin, y);
+    y += 5;
+    
+    const empImageData = formData.employment.stampedDocument?.data || formData.employment.document?.data;
+    y = await addImageToPdf(doc, empImageData, y, pageWidth, margin, contentWidth);
+  }
+
   doc.addPage();
   y = margin;
 
@@ -293,7 +332,6 @@ export const generateBGVReport = (formData) => {
   doc.text('ADDRESS VERIFICATION', margin + 3, y + 5.5);
   y += 12;
 
-  // Status badge
   const addrStatusColor = formData.address.status === 'verified' ? [16, 185, 129] :
                           formData.address.status === 'major' ? [239, 68, 68] :
                           formData.address.status === 'minor' ? [245, 158, 11] : [100, 116, 139];
@@ -338,7 +376,19 @@ export const generateBGVReport = (formData) => {
     y += 7;
   });
 
-  // ===== PAGE 4: Restrictions =====
+  if (formData.address.watermarkedDocument?.data || formData.address.document?.data) {
+    y += 5;
+    checkPageBreak(90);
+    doc.setFontSize(9);
+    doc.setTextColor(15, 23, 42);
+    doc.setFont('helvetica', 'bold');
+    doc.text('GPS Verified Document:', margin, y);
+    y += 5;
+    
+    const addrImageData = formData.address.watermarkedDocument?.data || formData.address.document?.data;
+    y = await addImageToPdf(doc, addrImageData, y, pageWidth, margin, contentWidth);
+  }
+
   doc.addPage();
   y = margin;
 
@@ -373,7 +423,6 @@ export const generateBGVReport = (formData) => {
     y += 2;
   });
 
-  // Footer on all pages
   const totalPages = doc.internal.getNumberOfPages();
   for (let i = 1; i <= totalPages; i++) {
     doc.setPage(i);

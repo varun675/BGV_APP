@@ -167,8 +167,8 @@ function App() {
     toast.info("Generating PDF report...");
     
     try {
-      // Generate PDF using the dedicated generator
-      const doc = generateBGVReport(formData);
+      // Generate PDF using the dedicated generator (async for image processing)
+      const doc = await generateBGVReport(formData);
       
       // Generate filename
       const today = new Date();
