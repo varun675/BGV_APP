@@ -1115,49 +1115,50 @@ function App() {
                     </p>
                   )}
                   
-                  {/* Embedded PDF Preview */}
+                  {/* PDF Ready Section */}
                   {pdfPreviewUrl && (
                     <div className="mt-6 space-y-4">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                          <FileText className="w-5 h-5 text-blue-600" />
-                          PDF Preview
-                        </h3>
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                        <div className="flex items-center gap-4 mb-4">
+                          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                            <Check className="w-8 h-8 text-green-600" />
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-semibold text-green-800">PDF Generated Successfully!</h3>
+                            <p className="text-green-600">Your BGV report is ready to view and download.</p>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-white rounded-lg p-4 border border-green-200 mb-4">
+                          <div className="flex items-center gap-3 mb-3">
+                            <FileText className="w-10 h-10 text-red-500" />
+                            <div>
+                              <p className="font-medium text-slate-800">{pdfBlob?.fileName || 'BGV_Report.pdf'}</p>
+                              <p className="text-sm text-slate-500">PDF Document</p>
+                            </div>
+                          </div>
+                        </div>
+                        
                         <div className="flex gap-3">
                           <Button
-                            variant="outline"
+                            size="lg"
                             onClick={() => window.open(pdfPreviewUrl, '_blank')}
+                            className="flex-1 bg-blue-600 hover:bg-blue-700 py-6"
                             data-testid="open-new-tab-btn"
                           >
-                            <Eye className="w-4 h-4 mr-2" />
-                            Open in New Tab
+                            <Eye className="w-5 h-5 mr-2" />
+                            View PDF
                           </Button>
                           <Button
+                            size="lg"
                             onClick={handleDownloadPDF}
-                            className="bg-green-600 hover:bg-green-700"
+                            className="flex-1 bg-green-600 hover:bg-green-700 py-6"
                             data-testid="direct-download-btn"
                           >
-                            <Download className="w-4 h-4 mr-2" />
+                            <Download className="w-5 h-5 mr-2" />
                             Download PDF
                           </Button>
                         </div>
-                      </div>
-                      <div className="border rounded-lg overflow-hidden bg-gray-100">
-                        <object
-                          data={pdfPreviewUrl}
-                          type="application/pdf"
-                          className="w-full h-[600px]"
-                        >
-                          <p className="p-4 text-center text-slate-600">
-                            PDF preview not available in your browser. 
-                            <button 
-                              onClick={() => window.open(pdfPreviewUrl, '_blank')}
-                              className="text-blue-600 underline ml-1"
-                            >
-                              Open in new tab
-                            </button>
-                          </p>
-                        </object>
                       </div>
                     </div>
                   )}
