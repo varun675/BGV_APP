@@ -49,15 +49,7 @@ function App() {
     }));
   }, []);
 
-  // Cleanup preview URL on unmount or when regenerating
-  useEffect(() => {
-    return () => {
-      if (pdfPreviewUrl) {
-        URL.revokeObjectURL(pdfPreviewUrl);
-      }
-    };
-  }, [pdfPreviewUrl]);
-
+  
   const updateFormData = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -195,10 +187,9 @@ function App() {
       // Store doc for later download
       setPdfBlob({ doc, fileName });
       
-      // Create preview URL
-      const blob = doc.output('blob');
-      const previewUrl = URL.createObjectURL(blob);
-      setPdfPreviewUrl(previewUrl);
+      // Create preview URL using data URL (works better in Chrome)
+      const dataUrl = doc.output('datauristring');
+      setPdfPreviewUrl(dataUrl);
       
       toast.success("PDF generated! Preview is ready below.");
     } catch (error) {
@@ -1152,11 +1143,21 @@ function App() {
                         </div>
                       </div>
                       <div className="border rounded-lg overflow-hidden bg-gray-100">
-                        <iframe
-                          src={pdfPreviewUrl}
+                        <object
+                          data={pdfPreviewUrl}
+                          type="application/pdf"
                           className="w-full h-[600px]"
-                          title="PDF Preview"
-                        />
+                        >
+                          <p className="p-4 text-center text-slate-600">
+                            PDF preview not available in your browser. 
+                            <button 
+                              onClick={() => window.open(pdfPreviewUrl, '_blank')}
+                              className="text-blue-600 underline ml-1"
+                            >
+                              Open in new tab
+                            </button>
+                          </p>
+                        </object>
                       </div>
                     </div>
                   )}
