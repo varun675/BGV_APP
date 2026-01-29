@@ -231,11 +231,9 @@ function App() {
       <aside className="sidebar">
         <div className="sidebar-header">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center">
-              <Shield className="w-6 h-6 text-white" />
-            </div>
+            <img src="/logo.png" alt="VerificationStreet Logo" className="h-10 w-auto" />
             <div>
-              <h1 className="sidebar-logo">VerifEye</h1>
+              <h1 className="sidebar-logo">VerificationStreet</h1>
             </div>
           </div>
         </div>

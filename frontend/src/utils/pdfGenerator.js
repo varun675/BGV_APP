@@ -35,6 +35,24 @@ const addImageToPdf = async (doc, imageData, y, pageWidth, margin, contentWidth,
   }
 };
 
+// Load logo as base64 for PDF
+const loadLogoForPdf = () => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.onerror = () => resolve(null);
+    img.src = '/logo.png';
+  });
+};
+
 export const generateBGVReport = async (formData) => {
   const doc = new jsPDF('p', 'mm', 'a4');
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -43,10 +61,28 @@ export const generateBGVReport = async (formData) => {
   const contentWidth = pageWidth - (margin * 2);
   let y = margin;
 
+  // Load logo for PDF
+  const logoData = await loadLogoForPdf();
+
+  // Function to add logo to current page
+  const addLogoToPage = () => {
+    if (logoData) {
+      try {
+        doc.addImage(logoData, 'PNG', margin, 5, 25, 12);
+      } catch (e) {
+        console.error('Failed to add logo:', e);
+      }
+    }
+  };
+
+  // Add logo to first page
+  addLogoToPage();
+
   const checkPageBreak = (neededSpace = 20) => {
     if (y + neededSpace > pageHeight - margin) {
       doc.addPage();
-      y = margin;
+      addLogoToPage();
+      y = margin + 15;
     }
   };
 
@@ -75,7 +111,7 @@ export const generateBGVReport = async (formData) => {
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
-  doc.text('VerifEye', margin + 5, y + 12);
+  doc.text('VerificationStreet', margin + 5, y + 12);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.text('Background Verification Services', margin + 35, y + 12);
@@ -403,10 +439,10 @@ export const generateBGVReport = async (formData) => {
   const restrictions = [
     '1. This report is confidential and intended solely for the use of the client.',
     '2. The verification is based on information provided by the candidate and third-party sources.',
-    '3. VerifEye does not guarantee the accuracy of information provided by third parties.',
+    '3. VerificationStreet does not guarantee the accuracy of information provided by third parties.',
     '4. This report should not be shared with unauthorized parties without prior written consent.',
     '5. The report is valid as of the date of issuance and may not reflect subsequent changes.',
-    '6. VerifEye shall not be liable for any decisions made based on this report.',
+    '6. VerificationStreet shall not be liable for any decisions made based on this report.',
     '7. All verification activities are conducted in accordance with applicable laws.',
     '8. Any disputes arising from this report shall be subject to arbitration.',
   ];
