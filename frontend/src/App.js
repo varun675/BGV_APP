@@ -222,7 +222,7 @@ function App() {
       <Toaster position="top-right" richColors />
       
       {/* PDF Preview Modal */}
-      {showPreview && pdfPreview && (
+      {showPreview && pdfBlob && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl w-full max-w-4xl flex flex-col shadow-2xl">
             {/* Modal Header */}
