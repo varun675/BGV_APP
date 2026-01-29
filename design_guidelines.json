@@ -1,0 +1,124 @@
+{
+  "design_system": {
+    "identity": {
+      "name": "VerifEye",
+      "archetype": "Swiss & High-Contrast",
+      "core_values": ["Authority", "Precision", "Trust", "Clarity"],
+      "emotional_tone": "Professional, Secure, Efficient"
+    },
+    "typography": {
+      "font_family": {
+        "headings": "Chivo, sans-serif",
+        "body": "Inter, sans-serif",
+        "mono": "JetBrains Mono, monospace"
+      },
+      "scale": {
+        "h1": "text-4xl font-bold tracking-tight",
+        "h2": "text-3xl font-semibold tracking-tight",
+        "h3": "text-2xl font-semibold",
+        "body_large": "text-lg leading-relaxed",
+        "body_base": "text-base leading-normal",
+        "caption": "text-sm text-muted-foreground",
+        "label": "text-xs font-medium uppercase tracking-wider text-muted-foreground"
+      }
+    },
+    "colors": {
+      "theme": "light",
+      "palette": {
+        "background": "#FFFFFF",
+        "foreground": "#0F172A",
+        "primary": "#0F172A",
+        "primary_foreground": "#FFFFFF",
+        "secondary": "#F1F5F9",
+        "secondary_foreground": "#0F172A",
+        "accent": "#2563EB",
+        "accent_foreground": "#FFFFFF",
+        "muted": "#F8FAFC",
+        "muted_foreground": "#64748B",
+        "border": "#E2E8F0",
+        "input": "#E2E8F0",
+        "ring": "#0F172A"
+      },
+      "status": {
+        "verified": "#10B981",
+        "discrepancy_major": "#EF4444",
+        "discrepancy_minor": "#F59E0B",
+        "unable_to_verify": "#64748B"
+      }
+    },
+    "layout": {
+      "spacing_scale": "generous",
+      "container_padding": "p-8 md:p-12",
+      "grid_system": "Bento Grid (Mode B - High Density)",
+      "border_radius": "rounded-md",
+      "elevation": "shadow-sm"
+    },
+    "components": {
+      "buttons": {
+        "primary": "bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 rounded-md font-medium transition-all",
+        "secondary": "bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2 rounded-md font-medium transition-all",
+        "ghost": "hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 rounded-md transition-all"
+      },
+      "cards": {
+        "base": "bg-card text-card-foreground rounded-lg border shadow-sm p-6",
+        "hover": "hover:shadow-md transition-shadow duration-200"
+      },
+      "inputs": {
+        "base": "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+      }
+    },
+    "motion": {
+      "transitions": "transition-all duration-200 ease-in-out",
+      "page_transition": {
+        "initial": { "opacity": 0, "y": 10 },
+        "animate": { "opacity": 1, "y": 0 },
+        "exit": { "opacity": 0, "y": -10 }
+      }
+    }
+  },
+  "assets": {
+    "icons": "lucide-react",
+    "images": []
+  },
+  "implementation_plan": {
+    "phases": [
+      {
+        "name": "Setup & Layout",
+        "tasks": [
+          "Install dependencies (lucide-react, framer-motion, jspdf, html2canvas)",
+          "Configure Tailwind theme in tailwind.config.js",
+          "Create main layout wrapper (Sidebar + Content Area)"
+        ]
+      },
+      {
+        "name": "Components",
+        "tasks": [
+          "Customize Shadcn components (Form, Input, Select, Card, Button)",
+          "Build 'FileUpload' component with drag-and-drop visuals",
+          "Build 'StatusBadge' component for verification states"
+        ]
+      },
+      {
+        "name": "Features",
+        "tasks": [
+          "Implement Multi-step Form Logic (Zustand or Context)",
+          "Step 1: Candidate Info Form",
+          "Step 2: Education Verification Form",
+          "Step 3: Employment Verification Form",
+          "Step 4: Address Verification Form",
+          "Step 5: Report Preview & PDF Generation"
+        ]
+      }
+    ]
+  },
+  "universal_guidelines": [
+    "Use 'Chivo' for all headings and 'Inter' for body text.",
+    "Ensure high contrast for all text (WCAG AA compliance).",
+    "Use 'lucide-react' for icons.",
+    "Do not use gradients for backgrounds; stick to solid colors or subtle noise textures.",
+    "All interactive elements must have a hover state.",
+    "Use 'sonner' for toast notifications.",
+    "Add 'data-testid' to all interactive elements."
+  ],
+  "instructions_to_main_agent": "You are building a client-side React application. Focus on the 'Swiss & High-Contrast' aesthetic. The app is a tool, so prioritize function and clarity. Use the 'Bento Grid' layout for the dashboard summary. For the PDF generation, use 'jspdf' and 'html2canvas' to render the report view. Ensure the report looks like a professional A4 document."
+}
