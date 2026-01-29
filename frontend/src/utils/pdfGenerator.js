@@ -68,7 +68,7 @@ export const generateBGVReport = async (formData) => {
   const addLogoToPage = () => {
     if (logoData) {
       try {
-        doc.addImage(logoData, 'PNG', margin, 5, 25, 12);
+        doc.addImage(logoData, 'PNG', margin, 5, 40, 20);
       } catch (e) {
         console.error('Failed to add logo:', e);
       }
@@ -77,13 +77,13 @@ export const generateBGVReport = async (formData) => {
 
   // Add logo to first page
   addLogoToPage();
-  y = margin + 15;
+  y = margin + 20;
 
   const checkPageBreak = (neededSpace = 20) => {
     if (y + neededSpace > pageHeight - margin) {
       doc.addPage();
       addLogoToPage();
-      y = margin + 15;
+      y = margin + 20;
     }
   };
 
@@ -231,7 +231,7 @@ export const generateBGVReport = async (formData) => {
 
   doc.addPage();
   addLogoToPage();
-  y = margin + 15;
+  y = margin + 20;
 
   doc.setFillColor(75, 85, 99);
   doc.rect(margin, y, contentWidth, 8, 'F');
@@ -361,7 +361,7 @@ export const generateBGVReport = async (formData) => {
 
   doc.addPage();
   addLogoToPage();
-  y = margin + 15;
+  y = margin + 20;
 
   doc.setFillColor(75, 85, 99);
   doc.rect(margin, y, contentWidth, 8, 'F');
@@ -430,7 +430,7 @@ export const generateBGVReport = async (formData) => {
 
   doc.addPage();
   addLogoToPage();
-  y = margin + 15;
+  y = margin + 20;
 
   doc.setFillColor(75, 85, 99);
   doc.rect(margin, y, contentWidth, 8, 'F');
