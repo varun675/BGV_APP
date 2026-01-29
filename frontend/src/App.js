@@ -75,12 +75,16 @@ function App() {
     }
     
     setIsGenerating(true);
+    toast.info("Generating PDF report...");
+    
     try {
+      console.log("Starting PDF generation with data:", formData);
       const fileName = await generatePDF(formData);
-      toast.success(`Report generated: ${fileName}`);
+      console.log("PDF generated successfully:", fileName);
+      toast.success(`Report downloaded: ${fileName}`);
     } catch (error) {
       console.error("PDF generation error:", error);
-      toast.error("Failed to generate PDF. Please try again.");
+      toast.error(`Failed to generate PDF: ${error.message}`);
     } finally {
       setIsGenerating(false);
     }
