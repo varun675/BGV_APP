@@ -282,9 +282,12 @@ function App() {
                   variant="outline"
                   size="lg"
                   onClick={() => {
-                    // Create a blob URL and open directly
-                    const blobUrl = URL.createObjectURL(pdfBlob.blob);
-                    window.open(blobUrl, '_blank');
+                    // Generate blob from jsPDF doc and open directly
+                    if (pdfBlob && pdfBlob.doc) {
+                      const blob = pdfBlob.doc.output('blob');
+                      const blobUrl = URL.createObjectURL(blob);
+                      window.open(blobUrl, '_blank');
+                    }
                   }}
                   className="w-full py-6"
                   data-testid="open-new-tab-btn"
