@@ -12,12 +12,13 @@ VerifEye is a background verification (BGV) report generator application. It all
   - `src/utils/helpers.js` - Utility functions
 
 ## Key Features
-- Multi-step form for data collection
+- Multi-step form for data collection (5 steps: Candidate Info, Education, Employment, Address, Preview & Download)
 - File upload with image preview
 - GPS watermarking on address documents
-- Verification stamps on education/employment documents
+- Verification stamps on education/employment documents (date is 2 days before delivery date)
 - PDF generation with embedded images
-- PDF preview and download functionality
+- Embedded PDF preview on step 5 with iframe viewer
+- PDF download functionality
 
 ## Running the App
 The frontend runs on port 5000 using:
@@ -31,7 +32,12 @@ cd frontend && npm start
 - Public directory: `frontend/build`
 
 ## Recent Changes (January 29, 2026)
+- Added embedded PDF preview on step 5 (shows PDF in iframe before download)
+- Fixed verified stamp date to be 2 days before delivery date
+- Updated back button to be hidden on step 1, visible on steps 2-5
+- Removed "BGV Report Generator" text from sidebar
+- Removed unused modal preview code
+- Added memory leak prevention (cleanup for PDF preview URL)
 - Removed Emergent branding from the application
 - Updated PDF generator to include uploaded/stamped images in the report
 - Configured port 5000 for Replit environment
-- Set up static deployment configuration
