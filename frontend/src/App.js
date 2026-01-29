@@ -293,19 +293,9 @@ function App() {
                   variant="outline"
                   size="lg"
                   onClick={() => {
-                    const newWindow = window.open('', '_blank');
-                    if (newWindow) {
-                      newWindow.document.write(`
-                        <!DOCTYPE html>
-                        <html>
-                          <head><title>${pdfBlob?.fileName}</title></head>
-                          <body style="margin:0;padding:0;overflow:hidden;">
-                            <embed width="100%" height="100%" src="${pdfPreview}" type="application/pdf" style="position:absolute;top:0;left:0;right:0;bottom:0;" />
-                          </body>
-                        </html>
-                      `);
-                      newWindow.document.close();
-                    }
+                    // Create a blob URL and open directly
+                    const blobUrl = URL.createObjectURL(pdfBlob.blob);
+                    window.open(blobUrl, '_blank');
                   }}
                   className="w-full py-6"
                   data-testid="open-new-tab-btn"
