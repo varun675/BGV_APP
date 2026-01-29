@@ -81,7 +81,8 @@ export const initialFormState = {
     verifiedBy: 'University Records Department',
     modeOfVerification: 'Email',
     remarks: 'All educational credentials verified successfully through university portal.',
-    document: null
+    document: null,
+    stampedDocument: null
   },
   
   // Employment Verification
@@ -102,13 +103,17 @@ export const initialFormState = {
     verifiedBy: 'HR Department - TechSoft Solutions',
     modeOfVerification: 'Email',
     remarks: 'Discrepancy found in reported designation. Candidate claimed Senior Engineer but records show Software Engineer.',
-    document: null
+    document: null,
+    stampedDocument: null
   },
   
   // Address Verification
   address: {
     status: 'verified',
     addressAsPerDocument: 'C-46, No.13 KH No-47, Shashi Garden, Patpar Ganj, East Delhi, Delhi – 110091',
+    latitude: '28.6280',
+    longitude: '77.2789',
+    pincode: '110091',
     verifiedBy: 'Field Verification Team',
     relationWithSubject: 'Self',
     modeOfVerification: 'Physical',
@@ -119,6 +124,7 @@ export const initialFormState = {
     neighbourName: 'Mr. Ramesh Sharma',
     neighbourContact: '9812345678',
     remarks: 'Physical verification completed. Candidate residing at given address. Confirmed by neighbour.',
-    document: null
+    document: null,
+    watermarkedDocument: null
   }
 };
