@@ -897,12 +897,24 @@ function App() {
                   </div>
                   
                   <FileUpload
-                    label="Address Proof Document (Aadhaar/Utility Bill)"
+                    label="Address Proof Photo - Will be GPS watermarked"
                     accept="image/*,.pdf"
                     value={formData.address.document}
-                    onChange={(file) => updateNestedFormData('address', 'document', file)}
-                    helpText="Upload address verification document or photo"
+                    onChange={handleAddressDocUpload}
+                    helpText="Upload address photo (Image files will get GPS watermark with coordinates)"
                   />
+                  
+                  {formData.address.watermarkedDocument && (
+                    <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                      <p className="text-sm font-medium text-green-800 mb-2">✓ GPS Watermarked Image Preview:</p>
+                      <img 
+                        src={formData.address.watermarkedDocument.data} 
+                        alt="GPS watermarked" 
+                        className="max-w-full h-auto rounded border"
+                        style={{ maxHeight: '400px' }}
+                      />
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
