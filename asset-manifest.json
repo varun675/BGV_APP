@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.css": "/BGV_APP/static/css/main.7a1d641f.css",
+    "main.js": "/BGV_APP/static/js/main.7964d544.js",
+    "static/js/239.e39fb35b.chunk.js": "/BGV_APP/static/js/239.e39fb35b.chunk.js",
+    "static/js/977.240addac.chunk.js": "/BGV_APP/static/js/977.240addac.chunk.js",
+    "static/js/51.feb8b2a6.chunk.js": "/BGV_APP/static/js/51.feb8b2a6.chunk.js",
+    "index.html": "/BGV_APP/index.html",
+    "main.7a1d641f.css.map": "/BGV_APP/static/css/main.7a1d641f.css.map",
+    "main.7964d544.js.map": "/BGV_APP/static/js/main.7964d544.js.map",
+    "239.e39fb35b.chunk.js.map": "/BGV_APP/static/js/239.e39fb35b.chunk.js.map",
+    "977.240addac.chunk.js.map": "/BGV_APP/static/js/977.240addac.chunk.js.map",
+    "51.feb8b2a6.chunk.js.map": "/BGV_APP/static/js/51.feb8b2a6.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.7a1d641f.css",
+    "static/js/main.7964d544.js"
+  ]
+}
