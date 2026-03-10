@@ -33,11 +33,17 @@ cd frontend && npm start
 - Build: `cd frontend && npm run build`
 - Public directory: `frontend/build`
 
-## Recent Changes (January 29, 2026)
-- Updated theme to light grey and white color scheme
-- Generated custom VerifEye logo (eye + checkmark design)
-- Added logo to sidebar header and every PDF page (top left corner)
-- Updated PDF section headers to grey (#4B5563) instead of dark blue
-- Logo is loaded asynchronously and added to each PDF page at coordinates (margin, 5) with size 40x20mm
+## Recent Changes (March 10, 2026)
+- Replaced logo with professional VerifEye branding
+- Added prominent page titles with subtitles to each step:
+  - "Candidate Information" - Enter the candidate's personal details
+  - "Education Verification" - Verify education credentials
+  - "Employment Verification" - Verify employment history
+  - "Address Verification" - Verify the candidate's address
+  - "Report Preview & Download" - Review and download BGV report
+- Updated form card headers with descriptive titles (Personal Details, Qualification Details, Work Experience, Address Details, BGV Report Summary)
+- Light grey and white theme applied throughout application and PDFs
+- Logo appears in sidebar header and on every PDF page
+- Logo size in PDFs: 40x20mm at top left corner
 - Fixed verified stamp date to be 2 days before delivery date
 - Configured port 5000 for Replit environment

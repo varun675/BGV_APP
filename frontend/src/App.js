@@ -308,13 +308,18 @@ function App() {
           >
             {/* Step 1: Candidate Info */}
             {currentStep === 1 && (
-              <Card className="form-card" data-testid="step-1-form">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    <User className="w-6 h-6 text-blue-600" />
-                    Candidate Information
-                  </CardTitle>
-                </CardHeader>
+              <>
+                <div className="mb-6">
+                  <h2 className="text-3xl font-bold text-gray-800">Candidate Information</h2>
+                  <p className="text-gray-600 mt-2">Enter the candidate's personal details and contact information</p>
+                </div>
+                <Card className="form-card" data-testid="step-1-form">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-3">
+                      <User className="w-6 h-6 text-blue-600" />
+                      Personal Details
+                    </CardTitle>
+                  </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="form-grid">
                     <div>
@@ -393,17 +398,23 @@ function App() {
                   </div>
                 </CardContent>
               </Card>
+              </>
             )}
 
             {/* Step 2: Education Verification */}
             {currentStep === 2 && (
-              <Card className="form-card" data-testid="step-2-form">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    <GraduationCap className="w-6 h-6 text-blue-600" />
-                    Education Verification
-                  </CardTitle>
-                </CardHeader>
+              <>
+                <div className="mb-6">
+                  <h2 className="text-3xl font-bold text-gray-800">Education Verification</h2>
+                  <p className="text-gray-600 mt-2">Verify education credentials and upload supporting documents</p>
+                </div>
+                <Card className="form-card" data-testid="step-2-form">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-3">
+                      <GraduationCap className="w-6 h-6 text-blue-600" />
+                      Qualification Details
+                    </CardTitle>
+                  </CardHeader>
                 <CardContent className="space-y-6">
                   <StatusSelect
                     label="Verification Status"
@@ -514,17 +525,23 @@ function App() {
                   )}
                 </CardContent>
               </Card>
+              </>
             )}
 
             {/* Step 3: Employment Verification */}
             {currentStep === 3 && (
-              <Card className="form-card" data-testid="step-3-form">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    <Briefcase className="w-6 h-6 text-blue-600" />
-                    Employment Verification
-                  </CardTitle>
-                </CardHeader>
+              <>
+                <div className="mb-6">
+                  <h2 className="text-3xl font-bold text-gray-800">Employment Verification</h2>
+                  <p className="text-gray-600 mt-2">Verify employment history and upload supporting documents</p>
+                </div>
+                <Card className="form-card" data-testid="step-3-form">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-3">
+                      <Briefcase className="w-6 h-6 text-blue-600" />
+                      Work Experience
+                    </CardTitle>
+                  </CardHeader>
                 <CardContent className="space-y-6">
                   <StatusSelect
                     label="Verification Status"
@@ -748,17 +765,23 @@ function App() {
                   )}
                 </CardContent>
               </Card>
+              </>
             )}
 
             {/* Step 4: Address Verification */}
             {currentStep === 4 && (
-              <Card className="form-card" data-testid="step-4-form">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    <MapPin className="w-6 h-6 text-blue-600" />
-                    Address Verification
-                  </CardTitle>
-                </CardHeader>
+              <>
+                <div className="mb-6">
+                  <h2 className="text-3xl font-bold text-gray-800">Address Verification</h2>
+                  <p className="text-gray-600 mt-2">Verify the candidate's address and upload supporting documents</p>
+                </div>
+                <Card className="form-card" data-testid="step-4-form">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-3">
+                      <MapPin className="w-6 h-6 text-blue-600" />
+                      Address Details
+                    </CardTitle>
+                  </CardHeader>
                 <CardContent className="space-y-6">
                   <StatusSelect
                     label="Verification Status"
@@ -955,17 +978,23 @@ function App() {
                   )}
                 </CardContent>
               </Card>
+              </>
             )}
 
             {/* Step 5: Preview & Download */}
             {currentStep === 5 && (
-              <Card className="form-card max-w-4xl" data-testid="step-5-form">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    <FileText className="w-6 h-6 text-blue-600" />
-                    Report Preview & Download
-                  </CardTitle>
-                </CardHeader>
+              <>
+                <div className="mb-6">
+                  <h2 className="text-3xl font-bold text-gray-800">Report Preview & Download</h2>
+                  <p className="text-gray-600 mt-2">Review the complete BGV report and download as PDF</p>
+                </div>
+                <Card className="form-card max-w-4xl" data-testid="step-5-form">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-3">
+                      <FileText className="w-6 h-6 text-blue-600" />
+                      BGV Report Summary
+                    </CardTitle>
+                  </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Summary Section */}
                   <div className="bg-slate-50 rounded-lg p-6 border">
@@ -1162,6 +1191,7 @@ function App() {
                   )}
                 </CardContent>
               </Card>
+              </>
             )}
           </motion.div>
         </AnimatePresence>
