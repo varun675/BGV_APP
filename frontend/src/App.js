@@ -231,9 +231,10 @@ function App() {
       <aside className="sidebar">
         <div className="sidebar-header">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="VerifEye Logo" className="h-14 w-auto" />
+            <img src="/verify-eye-logo.svg" alt="Verify Eye Logo" className="h-14 w-auto" />
             <div>
               <h1 className="sidebar-logo">VerifEye</h1>
+              <p className="text-xs text-slate-300 mt-1">Trust Starts with Verification</p>
             </div>
           </div>
         </div>
@@ -277,6 +278,17 @@ function App() {
 
       {/* Main Content */}
       <main className="main-content">
+        {/* Header with Logo and Tagline */}
+        <div className="mb-8 pb-6 border-b border-slate-200 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <img src="/verify-eye-logo.svg" alt="Verify Eye Logo" className="h-12 w-auto" />
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">VerifEye</h1>
+              <p className="text-sm text-blue-600 font-semibold">Trust Starts with Verification</p>
+            </div>
+          </div>
+        </div>
+
         {/* Step Progress */}
         <div className="step-indicator mb-8">
           {steps.map((step, index) => (

@@ -35,22 +35,18 @@ const addImageToPdf = async (doc, imageData, y, pageWidth, margin, contentWidth,
   }
 };
 
-// Load logo as base64 for PDF
-const loadLogoForPdf = () => {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
-      resolve(canvas.toDataURL('image/png'));
-    };
-    img.onerror = () => resolve(null);
-    img.src = '/logo.png';
-  });
+// Create an embedded SVG logo for PDF
+const createSvgLogo = () => {
+  const svgData = `
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <path d="M 50 100 Q 60 70 100 70 Q 140 70 150 100 Q 140 130 100 130 Q 60 130 50 100" fill="none" stroke="#0066CC" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 55 100 Q 65 80 100 80 Q 135 80 145 100 Q 135 120 100 120 Q 65 120 55 100" fill="none" stroke="#00A8CC" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="100" cy="100" r="25" fill="none" stroke="#00A8CC" stroke-width="4"/>
+      <path d="M -8 0 L -2 6 L 10 -6" fill="none" stroke="#00C853" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" transform="translate(100, 100)"/>
+      <path d="M 70 85 Q 100 75 130 85" fill="none" stroke="#00C853" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+    </svg>
+  `;
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svgData);
 };
 
 export const generateBGVReport = async (formData) => {
@@ -61,29 +57,46 @@ export const generateBGVReport = async (formData) => {
   const contentWidth = pageWidth - (margin * 2);
   let y = margin;
 
-  // Load logo for PDF
-  const logoData = await loadLogoForPdf();
-
-  // Function to add logo to current page
-  const addLogoToPage = () => {
-    if (logoData) {
-      try {
-        doc.addImage(logoData, 'PNG', margin, 5, 40, 20);
-      } catch (e) {
-        console.error('Failed to add logo:', e);
-      }
-    }
+  // Function to add professional header to page
+  const addHeaderToPage = () => {
+    // Header background - increased height slightly
+    doc.setFillColor(55, 75, 100);
+    doc.rect(margin, 5, contentWidth, 32, 'F');
+    
+    // Eye icon symbol (using circles)
+    doc.setDrawColor(0, 150, 255);
+    doc.setLineWidth(0.5);
+    doc.circle(margin + 8, 15, 4);
+    doc.circle(margin + 8, 15, 2.5);
+    
+    // Company branding
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('VerifEye', margin + 15, 16);
+    
+    // Tagline below company name
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(200, 220, 255);
+    doc.text('Trust Starts with Verification', margin + 15, 20);
+    
+    // Subtitle below tagline
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(220, 220, 220);
+    doc.text('Background Verification Services', margin + 15, 24.5);
   };
 
-  // Add logo to first page
-  addLogoToPage();
-  y = margin + 20;
+  // Add header to first page
+  addHeaderToPage();
+  y = margin + 32;
 
   const checkPageBreak = (neededSpace = 20) => {
     if (y + neededSpace > pageHeight - margin) {
       doc.addPage();
-      addLogoToPage();
-      y = margin + 20;
+      addHeaderToPage();
+      y = margin + 32;
     }
   };
 
@@ -106,17 +119,6 @@ export const generateBGVReport = async (formData) => {
       return dateStr;
     }
   };
-
-  doc.setFillColor(75, 85, 99);
-  doc.rect(margin, y, contentWidth, 18, 'F');
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(16);
-  doc.setFont('helvetica', 'bold');
-  doc.text('VerifEye', margin + 5, y + 12);
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Background Verification Services', margin + 35, y + 12);
-  y += 25;
 
   doc.setTextColor(55, 65, 81);
   doc.setFontSize(18);
@@ -230,8 +232,8 @@ export const generateBGVReport = async (formData) => {
   });
 
   doc.addPage();
-  addLogoToPage();
-  y = margin + 20;
+  addHeaderToPage();
+  y = margin + 32;
 
   doc.setFillColor(75, 85, 99);
   doc.rect(margin, y, contentWidth, 8, 'F');
@@ -360,8 +362,8 @@ export const generateBGVReport = async (formData) => {
   }
 
   doc.addPage();
-  addLogoToPage();
-  y = margin + 20;
+  addHeaderToPage();
+  y = margin + 32;
 
   doc.setFillColor(75, 85, 99);
   doc.rect(margin, y, contentWidth, 8, 'F');
@@ -429,8 +431,8 @@ export const generateBGVReport = async (formData) => {
   }
 
   doc.addPage();
-  addLogoToPage();
-  y = margin + 20;
+  addHeaderToPage();
+  y = margin + 32;
 
   doc.setFillColor(75, 85, 99);
   doc.rect(margin, y, contentWidth, 8, 'F');
